@@ -38,9 +38,10 @@ internal static class Program
     private static void Main()
     {
         Trace.Listeners.Add(new ConsoleTraceListener());
-        
+
+        RaylibGraphicsProvider graphicsProvider = new();
         Rl.SetConfigFlags(ConfigFlags.ResizableWindow);
-        Rl.InitWindow(RMIDlet.DefaultScreenWidth, RMIDlet.DefaultScreenHeight, "Bounce Tales");
+        Rl.InitWindow(graphicsProvider.WindowWidth, graphicsProvider.WindowHeight, "Bounce Tales");
         
         Rl.SetExitKey(KeyboardKey.Delete);
         
@@ -53,32 +54,27 @@ internal static class Program
         
         using RMIDlet midlet = new();
         MeltySynthProvider synth = new(new Synthesizer("GeneralUser-GS.sf2", SampleRate));
+        midlet.Graphics = graphicsProvider;
         midlet.Audio = synth;
         midlet.Start();
-        while (true)
+        while (midlet.Update())
         {
-            midlet.Graphics.ScreenWidth = Rl.GetScreenWidth();
-            midlet.Graphics.ScreenHeight = Rl.GetScreenHeight();
-            if (!midlet.Update())
-                break;
+            if (Rl.IsKeyPressed(KeyboardKey.O))
+            {
+                graphicsProvider.Scale = Math.Clamp(graphicsProvider.Scale - 1, 1, 5);
+                Rl.SetWindowSize(graphicsProvider.WindowWidth, graphicsProvider.WindowHeight);
+            }
+            if (Rl.IsKeyPressed(KeyboardKey.P))
+            {
+                graphicsProvider.Scale = Math.Clamp(graphicsProvider.Scale + 1, 1, 5);
+                Rl.SetWindowSize(graphicsProvider.WindowWidth, graphicsProvider.WindowHeight);
+            }
 
             if (Rl.IsAudioStreamProcessed(stream))
             {
                 synth.Sequencer.RenderInterleavedInt16(buffer);
                 Rl.UpdateAudioStream(stream, buffer, AudioBufferSize);
             }
-
-            Rl.BeginDrawing();
-            SoftwareImage image = ((SoftwareGraphicsProvider)midlet.Graphics).ScreenImage;
-            for (int y = 0; y < image.Height; y++)
-            {
-                for (int x = 0; x < image.Width; x++)
-                {
-                    Microedition.Lcdui.Color color = image[x, y];
-                    Rl.DrawPixel(x, y, new Color(color.R, color.G, color.B, color.A));
-                }
-            }
-            Rl.EndDrawing();
 
             foreach (KeyValuePair<KeyboardKey, KeyCode> pair in _keyMap)
             {
