@@ -4,9 +4,11 @@ namespace BounceTales.Platform.Software;
 
 public class SoftwareGraphicsProvider : BasicGraphicsProvider
 {
+    public SoftwareImage ScreenImage => (SoftwareImage)_renderTarget;
+    
     public override Image CreateImage(ReadOnlySpan<Color> data, int width, int height)
     {
-        return new SoftwareImage(data.ToArray(), width, height);
+        return new SoftwareImage([.. data], width, height);
     }
 
     public override Image CreateRenderImage(int width, int height)

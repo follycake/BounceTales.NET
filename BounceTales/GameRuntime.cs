@@ -75,7 +75,6 @@ public sealed class GameRuntime : Displayable, IResourceHandler
 
     // ENGINE GLOBAL STATE
     public static RMIDlet MidLet;
-    public static Thread GameThread;
 
     private static bool midletIsPaused;
 
@@ -1435,15 +1434,14 @@ public sealed class GameRuntime : Displayable, IResourceHandler
 
     private static void ProcessResourceUnload()
     {
-        for (int i = 0; i < resUnloadQueue.Count; i++)
+        foreach (int unloadResId in resUnloadQueue)
         {
-            int unloadResId = resUnloadQueue[i];
             if (isResourceLoaded[unloadResId])
             {
                 ResourceType resType = resourceBatchInfo[unloadResId].ResType;
-                for (int j = 0; j < resHandlers.Length; j++)
+                foreach (IResourceHandler handler in resHandlers)
                 {
-                    if (resHandlers[j].UnloadResource(resType, unloadResId))
+                    if (handler.UnloadResource(resType, unloadResId))
                         break;
                 }
                 loadedResources[unloadResId] = null;
@@ -1456,8 +1454,8 @@ public sealed class GameRuntime : Displayable, IResourceHandler
     public static void LoadResidentResSet(int setId)
     {
         short[] arr = residentResMap[setId];
-        for (int i = 0; i < arr.Length; i++)
-            LoadResource(arr[i]);
+        foreach (short res in arr)
+            LoadResource(res);
     }
 
     private static void UpdateGameLoad()
@@ -1647,10 +1645,8 @@ public sealed class GameRuntime : Displayable, IResourceHandler
         Debug.WriteLine("LoadingThread ended");
     }
 
-    // TODO: Make it so that this doesn't run on a separate thread. Make a separate Update function.
-    private void Run()
+    public static void Initialize()
     {
-        Debug.WriteLine("Starting BounceThread");
         try
         {
             Debug.WriteLine("Initializing game");
@@ -1675,91 +1671,100 @@ public sealed class GameRuntime : Displayable, IResourceHandler
             NotifySystemEvent(SystemEvent.START);
             ResumeRuntime();
             MidLet.Initialize();
+        }
+        catch (Exception e)
+        {
+            Debug.WriteLine(e);
+        }
+    }
 
-            while (!reqClose)
+    public static bool Update()
+    {
+        try
+        {
+            currentTime = CurrentTimeMillis();
+            if (!isGamePaintEnabled)
+                reqSystemGamePause = true;
+            UpdateViewport();
+            if (systemEventQueueSize > 0)
             {
-                while (true)
+                lock (systemEventQueue)
                 {
-                    try
+                    for (int i = 0; i < systemEventQueueSize; i++)
                     {
-                        currentTime = CurrentTimeMillis();
-                        if (!isGamePaintEnabled)
-                            reqSystemGamePause = true;
-                        UpdateViewport();
-                        if (systemEventQueueSize > 0)
-                        {
-                            lock (systemEventQueue)
-                            {
-                                for (int i = 0; i < systemEventQueueSize; i++)
-                                {
-                                    BounceGame.OnSystemEvent(systemEventQueue[i]);
-                                    systemEventQueue[i] = 0;
-                                }
-                                systemEventQueueSize = 0;
-                            }
-                            lock (gameMutex)
-                            {
-                                if (music_IdQueuedAfterSysUnpause != -1)
-                                {
-                                    // this is bugged as the menu music will be muted on incoming call
-                                    // however, the straightforward way to fix it wouldn't work, as sounds are not allowed when this part of the code runs
-                                    // not sure if I want to rewrite this or preserve the original behavior
-
-                                    //if (music_IdBeforeSysPause != music_IdQueuedAfterSysUnpause) { // REMOVED IN 2.0.25
-                                    PlayMusic(music_IdQueuedAfterSysUnpause, true);
-                                    //}
-                                    music_IdQueuedAfterSysUnpause = -1;
-                                }
-                            }
-                        }
-                        if (IsGameLoading())
-                        {
-                            for (int softkeyIdx = 0; softkeyIdx < reqSoftkeyTexts.Length; softkeyIdx++)
-                                softkeyTexts[softkeyIdx] = null;
-                            UpdateGameLoad();
-                            currentTime = CurrentTimeMillis();
-                        }
-                        // Stuff...
-                        if (!reqSystemGamePause)
-                        {
-                            for (int softkeyIdx = 0; softkeyIdx < reqSoftkeyTexts.Length; softkeyIdx++)
-                            {
-                                if (!ObjectsEquals(softkeyTexts[softkeyIdx], reqSoftkeyTexts[softkeyIdx]))
-                                {
-                                    if (softkeyTexts[softkeyIdx] == null || !softkeyTexts[softkeyIdx].Equals(reqSoftkeyTexts[softkeyIdx]))
-                                        softkeyTexts[softkeyIdx] = reqSoftkeyTexts[softkeyIdx];
-                                    else
-                                        reqSoftkeyTexts[softkeyIdx] = softkeyTexts[softkeyIdx];
-                                }
-                            }
-                            CallGamePaint(1);
-                            if (!reqSystemGamePause)
-                            {
-                                GameUpdate();
-                                if (reqClose)
-                                {
-                                    Debug.WriteLine("Game is about to close.");
-                                    break;
-                                }
-                                if (typingKeyIsHeld && typingKeyHeldId >= KeyCode.NUM0 && typingKeyHeldId <= KeyCode.NUM9 && CurrentTimeMillis() - typingKeyHoldStartTime > 500)
-                                    EndTypingKeyHold(typingKeyHeldId);
-                                if (reqSystemGamePause)
-                                    WaitPausedRuntime();
-                                else
-                                    Thread.Sleep(1);
-                            }
-                            else
-                                WaitPausedRuntime();
-                        }
-                        else
-                            WaitPausedRuntime();
+                        BounceGame.OnSystemEvent(systemEventQueue[i]);
+                        systemEventQueue[i] = 0;
                     }
-                    catch (Exception e)
+                    systemEventQueueSize = 0;
+                }
+                lock (gameMutex)
+                {
+                    if (music_IdQueuedAfterSysUnpause != -1)
                     {
-                        Trace.WriteLine(e);
+                        // this is bugged as the menu music will be muted on incoming call
+                        // however, the straightforward way to fix it wouldn't work, as sounds are not allowed when this part of the code runs
+                        // not sure if I want to rewrite this or preserve the original behavior
+
+                        //if (music_IdBeforeSysPause != music_IdQueuedAfterSysUnpause) { // REMOVED IN 2.0.25
+                        PlayMusic(music_IdQueuedAfterSysUnpause, true);
+                        //}
+                        music_IdQueuedAfterSysUnpause = -1;
                     }
                 }
             }
+            if (IsGameLoading())
+            {
+                for (int softkeyIdx = 0; softkeyIdx < reqSoftkeyTexts.Length; softkeyIdx++)
+                    softkeyTexts[softkeyIdx] = null;
+                UpdateGameLoad();
+                currentTime = CurrentTimeMillis();
+            }
+            // Stuff...
+            if (!reqSystemGamePause)
+            {
+                for (int softkeyIdx = 0; softkeyIdx < reqSoftkeyTexts.Length; softkeyIdx++)
+                {
+                    if (!ObjectsEquals(softkeyTexts[softkeyIdx], reqSoftkeyTexts[softkeyIdx]))
+                    {
+                        if (softkeyTexts[softkeyIdx] == null || !softkeyTexts[softkeyIdx].Equals(reqSoftkeyTexts[softkeyIdx]))
+                            softkeyTexts[softkeyIdx] = reqSoftkeyTexts[softkeyIdx];
+                        else
+                            reqSoftkeyTexts[softkeyIdx] = softkeyTexts[softkeyIdx];
+                    }
+                }
+                CallGamePaint(1);
+                if (!reqSystemGamePause)
+                {
+                    GameUpdate();
+                    if (reqClose)
+                    {
+                        Debug.WriteLine("Game is about to close.");
+                        return false;
+                    }
+                    if (typingKeyIsHeld && typingKeyHeldId >= KeyCode.NUM0 && typingKeyHeldId <= KeyCode.NUM9 && CurrentTimeMillis() - typingKeyHoldStartTime > 500)
+                        EndTypingKeyHold(typingKeyHeldId);
+                    if (reqSystemGamePause)
+                        WaitPausedRuntime();
+                    else
+                        Thread.Sleep(1);
+                }
+                else
+                    WaitPausedRuntime();
+            }
+            else
+                WaitPausedRuntime();
+        }
+        catch (Exception e)
+        {
+            Trace.WriteLine(e);
+        }
+        return true;
+    }
+
+    public static void Shutdown()
+    {
+        try
+        {
             BounceGame?.Shutdown();
 
             BounceGame = null;
@@ -1768,12 +1773,10 @@ public sealed class GameRuntime : Displayable, IResourceHandler
             for (int unloadIdx = 0; unloadIdx < loadedResources.Length; unloadIdx++) // unload all resources
                 resUnloadQueue.Add(unloadIdx);
             ProcessResourceUnload();
-
-            RMIDlet m = MidLet;
+            
             MidLet = null;
             mInstance = null;
             ResetGlobalState();
-            m.Dispose();
 
             // TEMPORARY
             if (Image.notDisposedCount == 0)
@@ -1785,7 +1788,6 @@ public sealed class GameRuntime : Displayable, IResourceHandler
         {
             Debug.WriteLine(e);
         }
-        Debug.WriteLine("BounceThread died");
     }
 
     private static void WaitPausedRuntime()
@@ -1829,12 +1831,7 @@ public sealed class GameRuntime : Displayable, IResourceHandler
             if (state == GameState.INIT)
             {
                 mInstance = new GameRuntime();
-                GameThread = new Thread(mInstance.Run)
-                {
-                    Name = "BounceThread",
-                    IsBackground = true
-                };
-                GameThread.Start();
+                Initialize();
             }
             else if (mInstance != null)
             {

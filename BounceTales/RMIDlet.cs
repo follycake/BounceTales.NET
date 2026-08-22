@@ -6,6 +6,9 @@ namespace BounceTales;
 
 public sealed class RMIDlet : IDisposable
 {
+    public const int DefaultScreenWidth = 240;
+    public const int DefaultScreenHeight = 320;
+    
     public ISystemProvider System { get; set; }
     public IGraphicsProvider Graphics { get; set; }
     public IAudioProvider Audio { get; set; }
@@ -33,10 +36,9 @@ public sealed class RMIDlet : IDisposable
             GameRuntime.SetState(GameState.RUN);
     }
 
-    public void Join()
+    public bool Update()
     {
-        if (Thread.CurrentThread != GameRuntime.GameThread)
-            GameRuntime.GameThread.Join();
+        return GameRuntime.Update();
     }
 
     public void Pause()
@@ -45,18 +47,18 @@ public sealed class RMIDlet : IDisposable
         Paused?.Invoke();
     }
 
-    public void Quit()
+    public void RequestQuit()
     {
-        Dispose();
+        GameRuntime.Quit();
     }
 
     public void Dispose()
     {
-        GameRuntime.Quit();
-        Join();
-
         System?.Dispose();
         Graphics?.Dispose();
         Audio?.Dispose();
+        
+        GameRuntime.Quit();
+        GameRuntime.Shutdown();
     }
 }

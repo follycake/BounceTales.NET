@@ -16,8 +16,8 @@ public interface IGraphicsProvider : IProvider
 
 public abstract class BasicGraphicsProvider : IGraphicsProvider
 {
-    public int ScreenWidth { get; set; } = 240;
-    public int ScreenHeight { get; set; } = 320;
+    public int ScreenWidth { get; set; } = RMIDlet.DefaultScreenWidth;
+    public int ScreenHeight { get; set; } = RMIDlet.DefaultScreenHeight;
 
     protected Image _renderTarget;
     protected Graphics _graphics;
