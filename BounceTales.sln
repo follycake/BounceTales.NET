@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BounceTales", "BounceTales\BounceTales.csproj", "{E483A5A2-C6F4-430C-BD4B-E9DC6A4FC6A8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BounceTales.Raylib", "BounceTales.Raylib\BounceTales.Raylib.csproj", "{0C2B69AA-42FB-43FC-BDB5-7DFE7CFBB5B4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BigGustave", "BigGustave\src\BigGustave\BigGustave.csproj", "{409C1F41-5399-4E69-896D-1A8AC85F542C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E483A5A2-C6F4-430C-BD4B-E9DC6A4FC6A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E483A5A2-C6F4-430C-BD4B-E9DC6A4FC6A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E483A5A2-C6F4-430C-BD4B-E9DC6A4FC6A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E483A5A2-C6F4-430C-BD4B-E9DC6A4FC6A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0C2B69AA-42FB-43FC-BDB5-7DFE7CFBB5B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C2B69AA-42FB-43FC-BDB5-7DFE7CFBB5B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C2B69AA-42FB-43FC-BDB5-7DFE7CFBB5B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C2B69AA-42FB-43FC-BDB5-7DFE7CFBB5B4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{409C1F41-5399-4E69-896D-1A8AC85F542C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{409C1F41-5399-4E69-896D-1A8AC85F542C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{409C1F41-5399-4E69-896D-1A8AC85F542C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{409C1F41-5399-4E69-896D-1A8AC85F542C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

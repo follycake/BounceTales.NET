@@ -1,0 +1,38 @@
+﻿namespace BounceTales;
+
+public enum EventCommand
+{
+    MESSAGE = 0,
+    OBJ_ANIMATE = 1,
+    EVENT_TERMINATE = 2,
+    EVENT_CANCEL = 3,
+    EVENT_START = 4,
+    EVENT_PAUSE = 5,
+    WAIT = 6,
+    VAR_SET = 7,
+    VAR_ADD = 8,
+    VAR_SUB = 9,
+    VAR_MUL = 10,
+    VAR_DIV = 11,
+    BRANCH_IF_NE = 12,
+    BRANCH_IF_EQ = 13,
+    BRANCH_IF_GEQ = 14,
+    BRANCH_IF_LEQ = 15,
+    OBJ_MOVE = 16,
+    OBJ_ROTATE = 17,
+    OBJ_SETPOS = 18,
+    OBJ_ATTACH = 19,
+    OBJ_DETACH = 20,
+    BRANCH = 21,
+    NOP = 22,
+    END = 23,
+    WAIT_ACTOR_GONE = 24,
+    CHECKPOINT = 25,
+    PUSH = 26,
+    GRAVITATE = 27,
+    ACCELERATE = 28,
+    OBJ_SET_FLAGS = 29,
+    CAMERA_TARGET = 30,
+    CAMERA_SETPARAM = 31,
+    CAMERA_SETPARAM_DEFAULT = 32
+}

@@ -1,0 +1,37 @@
+﻿namespace BounceTales;
+
+// It's more of a GameAction than a GameScene.
+public enum GameScene
+{
+    SELECTED = -2,
+    INVALID = -1,
+
+    ENTRYPOINT = 0,
+    LOAD_SAVE_DATA = 1,
+    INIT = 2,
+    EXIT_LEVEL = 5,
+    LOAD_LEVEL = 6,
+    ENTER_LEVEL = 7,
+    UNPAUSE_LEVEL = 8,
+    QUIT_GAME = 9,
+    MENU_HIGH_SCORES = 10,
+    START_NEW_GAME = 11,
+    MENU_TITLE = 17,
+    MENU_LEVEL_SELECT = 18,
+    MENU_SOFTLOCK = 19,
+    MENU_NEW_GAME = 20,
+    MENU_GUIDE = 22,
+    CONFIRM_QUIT_GAME = 24,
+    MENU_PAUSE = 25,
+    CONFIRM_RESTART_LEVEL = 28,
+    CONFIRM_RETURN_LEVEL_SELECT = 29,
+    CONFIRM_EXIT_LEVEL = 30,
+    INFO_CHAPTER_COMPLETE = 31,
+    INFO_GAME_BEATEN = 32,
+    INFO_GAME_COMPLETED = 33,
+    INFO_FIELD_MESSAGE = 34,
+    CLOSE_FIELD_MESSAGE = 35,
+    CALL_TITLE_MENU = 36,
+    RESTART_LEVEL = 37,
+    OPEN_MORE_GAMES_URL = 38
+}

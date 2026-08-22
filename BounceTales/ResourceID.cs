@@ -1,0 +1,62 @@
+﻿namespace BounceTales;
+
+public static class ResourceID
+{
+    public const string RESMAP_FILENAME = "/a";
+
+    public const short GRAPHICS_OBJFRIEND_RES = 0;
+    public const short GRAPHICS_BALLPARTS_RES = 1;
+    public const short GRAPHICS_BALLHIGHLIGHT_RES = 2;
+    public const short GRAPHICS_OBJSTONEWALL_RES = 3;
+    public const short GRAPHICS_OBJCANNON_RES = 4;
+    public const short GRAPHICS_OBJLEVER_RES = 5;
+    public const short GRAPHICS_OBJDOOR_RES = 6;
+    public const short GRAPHICS_SPLASHLOGO_RES = 7;
+    public const short GRAPHICS_LEVELACT03_RES = 8;
+    public const short GRAPHICS_UIARROWS_RES = 9;
+    public const short GRAPHICS_UIMAINMENU_RES = 10;
+    public const short GRAPHICS_LEVELACT02_RES = 11;
+    public const short GRAPHICS_LEVELACT01_RES = 12;
+    public const short GRAPHICS_UILEVELSELECT_RES = 13;
+    public const short GRAPHICS_UILEVELSTATS_RES = 14;
+    public const short GRAPHICS_UINUMBERFONT_RES = 15;
+    public const short GRAPHICS_OBJHYPNOTOID_RES = 16;
+    public const short GRAPHICS_OBJCOLORMACHINE_RES = 17;
+    public const short GRAPHICS_OBJCOLORMACHINEBROKEN_RES = 18;
+    public const short GRAPHICS_ENEMY02MOLE_RES = 19;
+    public const short GRAPHICS_ENEMY00CANDLE_RES = 20;
+    public const short GRAPHICS_PARTICLECOMMON_RES = 21;
+    public const short GRAPHICS_OBJEGG_RES = 22;
+    public const short GRAPHICS_BALLBUMPYCRACKS_RES = 23;
+    public const short GRAPHICS_OBJSIGNBOARD_RES = 24;
+    public const short GRAPHICS_OBJSPIKE_RES = 25;
+    public const short GRAPHICS_UIPAUSEMENU_RES = 26;
+    public const short GRAPHICS_PARTICLESPLASH_RES = 27;
+    public const short AUDIO_BGM_TITLE_MID = 28;
+    public const short AUDIO_BGM_LEVEL_ACT01_MID = 29;
+    public const short AUDIO_BGM_LEVEL_ACT02_MID = 30;
+    public const short AUDIO_BGM_LEVEL_ACT03_MID = 31;
+    public const short AUDIO_BGM_LEVEL_BOSS_MID = 32;
+    public const short AUDIO_ME_LOSE_MID = 33;
+    public const short AUDIO_ME_WIN_MID = 34;
+    public const short AUDIO_BGM_LEVEL_BONUS_MID = 35;
+    public const short LAYOUT_INFOLAYOUT_RES = 36;
+    public const short LAYOUT_MENULAYOUTA_RES = 37;
+    public const short LAYOUT_MENULAYOUTB_RES = 38;
+    public const short LEVELS_LEVEL_CAMPAIGN01_RLEF = 39;
+    public const short LEVELS_LEVEL_CAMPAIGN02_RLEF = 40;
+    public const short LEVELS_LEVEL_CAMPAIGN03_RLEF = 41;
+    public const short LEVELS_LEVEL_CAMPAIGN04_RLEF = 42;
+    public const short LEVELS_LEVEL_CAMPAIGN05_RLEF = 43;
+    public const short LEVELS_LEVEL_CAMPAIGN06_RLEF = 44;
+    public const short LEVELS_LEVEL_CAMPAIGN07_RLEF = 45;
+    public const short LEVELS_LEVEL_CAMPAIGN08_RLEF = 46;
+    public const short LEVELS_LEVEL_CAMPAIGN09_RLEF = 47;
+    public const short LEVELS_LEVEL_CAMPAIGN10_RLEF = 48;
+    public const short LEVELS_LEVEL_CAMPAIGN11_RLEF = 49;
+    public const short LEVELS_LEVEL_CAMPAIGN12_RLEF = 50;
+    public const short LEVELS_LEVEL_EXTRA01_RLEF = 51;
+    public const short LEVELS_LEVEL_EXTRA02_RLEF = 52;
+    public const short LEVELS_LEVEL_EXTRA03_RLEF = 53;
+    public const short LEVELS_LEVEL_OBJ01_CANNON_RLEF = 54;
+}

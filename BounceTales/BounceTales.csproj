@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>disable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\BigGustave\src\BigGustave\BigGustave.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="MeltySynth" Version="2.4.1"/>
+    </ItemGroup>
+
+</Project>
