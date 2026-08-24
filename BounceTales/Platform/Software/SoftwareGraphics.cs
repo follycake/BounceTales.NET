@@ -19,7 +19,7 @@ public class SoftwareGraphics(SoftwareImage image) : Graphics
         _clipRect = Rectangle.Intersect(new Rectangle(x, y, width, height), new Rectangle(0, 0, _image.Width, _image.Height));
     }
 
-    public override void DrawPixel(int x, int y, Color color)
+    public override void DrawPixel(int x, int y, Color32 color)
     {
         if (!_clipRect.Contains(x, y))
             return;
@@ -45,8 +45,8 @@ public class SoftwareGraphics(SoftwareImage image) : Graphics
                     for (int x = dstRect.X; x < dstRect.Right; x++)
                     {
                         Vector2 sample = Vector2.Transform(new Vector2(x, y), matrix);
-                        Color col = img[xSrc + (int)sample.X, ySrc + (int)sample.Y];
-                        _image[x, y] = Color.AlphaBlend(_image[x, y], col);
+                        Color32 col = img[xSrc + (int)sample.X, ySrc + (int)sample.Y];
+                        _image[x, y] = Color32.AlphaBlend(_image[x, y], col);
                     }
                 }
             }
@@ -57,33 +57,33 @@ public class SoftwareGraphics(SoftwareImage image) : Graphics
                 for (int y = dstRect.Y; y < dstRect.Bottom; y++)
                 {
                     for (int x = dstRect.X; x < dstRect.Right; x++)
-                        _image[x, y] = Color.AlphaBlend(_image[x, y], img[xSrc + (x - xDst), ySrc + (y - yDst)]);
+                        _image[x, y] = Color32.AlphaBlend(_image[x, y], img[xSrc + (x - xDst), ySrc + (y - yDst)]);
                 }
             }
         }
     }
 
-    public override void DrawRGB(ReadOnlySpan<Color> rgbData, int x, int y, int width, int height)
+    public override void DrawRGB(ReadOnlySpan<Color32> rgbData, int x, int y, int width, int height)
     {
         Rectangle rect = Rectangle.Intersect(new Rectangle(x, y, width, height), _clipRect);
         for (int py = rect.Y; py < rect.Bottom; py++)
         {
             for (int px = rect.X; px < rect.Right; px++)
-                _image[px, py] = Color.AlphaBlend(_image[px, py], rgbData[px - x + (py - y) * width]);
+                _image[px, py] = Color32.AlphaBlend(_image[px, py], rgbData[px - x + (py - y) * width]);
         }
     }
 
-    public override void FillRect(int x, int y, int width, int height, Color color)
+    public override void FillRect(int x, int y, int width, int height, Color32 color)
     {
         Rectangle rect = Rectangle.Intersect(new Rectangle(x, y, width, height), _clipRect);
         for (int py = rect.Y; py < rect.Bottom; py++)
         {
             for (int px = rect.X; px < rect.Right; px++)
-                _image[px, py] = Color.AlphaBlend(_image[px, py], color);
+                _image[px, py] = Color32.AlphaBlend(_image[px, py], color);
         }
     }
 
-    public override void FillArc(int x, int y, int width, int height, int startAngle, int arcAngle, Color color)
+    public override void FillArc(int x, int y, int width, int height, int startAngle, int arcAngle, Color32 color)
     {
         Rectangle bounds = new(x, y, width, height);
         bounds.Intersect(_clipRect);
@@ -113,7 +113,7 @@ public class SoftwareGraphics(SoftwareImage image) : Graphics
         }
     }
 
-    public override void FillTriangle(Vector2I p1, Vector2I p2, Vector2I p3, Color color)
+    public override void FillTriangle(Vector2I p1, Vector2I p2, Vector2I p3, Color32 color)
     {
         Vector2I min = Vector2I.Min(Vector2I.Min(p1, p2), p3);
         Vector2I max = Vector2I.Max(Vector2I.Max(p1, p2), p3);
@@ -124,7 +124,7 @@ public class SoftwareGraphics(SoftwareImage image) : Graphics
             {
                 if (!InsideTriangle(x, y, p1.X, p1.Y, p2.X, p2.Y, p3.X, p3.Y))
                     continue;
-                _image[x, y] = Color.AlphaBlend(_image[x, y], color);
+                _image[x, y] = Color32.AlphaBlend(_image[x, y], color);
             }
         }
     }

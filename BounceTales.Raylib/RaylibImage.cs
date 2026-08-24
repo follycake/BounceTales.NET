@@ -21,13 +21,13 @@ public unsafe class RaylibRenderImage : RaylibImage
         return new RaylibGraphics(this);
     }
 
-    public override void GetRGB(Span<Color> rgbData)
+    public override void GetRGB(Span<Color32> rgbData)
     {
         if (rgbData.Length < Width * Height)
             throw new ArgumentException("Destination is too small.", nameof(rgbData));
         Rl.Image temp = Rl.Raylib.LoadImageFromTexture(_renderTexture.Texture);
         Rl.Raylib.ImageFlipVertical(ref temp);
-        new ReadOnlySpan<Color>(temp.Data, temp.Width * temp.Height).CopyTo(rgbData);
+        new ReadOnlySpan<Color32>(temp.Data, temp.Width * temp.Height).CopyTo(rgbData);
         Rl.Raylib.UnloadImage(temp);
     }
 
@@ -50,9 +50,9 @@ public unsafe class RaylibImage : Image
         _texture = texture;
     }
 
-    public RaylibImage(ReadOnlySpan<Color> data, int width, int height)
+    public RaylibImage(ReadOnlySpan<Color32> data, int width, int height)
     {
-        fixed (Color* ptr = data)
+        fixed (Color32* ptr = data)
         {
             Rl.Image image = new()
             {
@@ -66,12 +66,12 @@ public unsafe class RaylibImage : Image
         }
     }
 
-    public override void GetRGB(Span<Color> rgbData)
+    public override void GetRGB(Span<Color32> rgbData)
     {
         if (rgbData.Length < Width * Height)
             throw new ArgumentException("Destination is too small.", nameof(rgbData));
         Rl.Image temp = Rl.Raylib.LoadImageFromTexture(_texture);
-        new ReadOnlySpan<Color>(temp.Data, temp.Width * temp.Height).CopyTo(rgbData);
+        new ReadOnlySpan<Color32>(temp.Data, temp.Width * temp.Height).CopyTo(rgbData);
         Rl.Raylib.UnloadImage(temp);
     }
 

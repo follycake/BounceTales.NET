@@ -83,7 +83,7 @@ public sealed class SpriteObject() : GameObject(TYPEID)
     {
         base.Draw(graphics, rootMatrix);
         int anmTime;
-        Color fadeColor;
+        Color32 fadeColor;
         int actYPos;
         int anmFrame;
         int anmLength;
@@ -99,16 +99,16 @@ public sealed class SpriteObject() : GameObject(TYPEID)
                 if (anmProgress > 0 || actionImageIDs[componentIdx] != 474)
                 {
                     anmTime = normalAnmTime;
-                    fadeColor = Color.Zero;
+                    fadeColor = Color32.Zero;
                 }
                 else
                 {
                     anmTime = 1;
-                    fadeColor = Color.FromARGB(((uint)Math.Abs(anmProgress) * 255 / 1500 & 0xFF) << 24);
+                    fadeColor = Color32.FromARGB(((uint)Math.Abs(anmProgress) * 255 / 1500 & 0xFF) << 24);
                 }
                 Vector2I posAnim = pos;
                 Graphics orgGraphics = GameRuntime.GetGraphicsObj();
-                if (fadeColor != Color.Zero)
+                if (fadeColor != Color32.Zero)
                 {
                     BounceGame.SpriteOffscreenGraphics.SetColor(0x0000FF); // red - transparency key color
                     BounceGame.SpriteOffscreenGraphics.FillRect(0, 0, BounceGame.SpriteFB.Width, BounceGame.SpriteFB.Height);
@@ -136,20 +136,20 @@ public sealed class SpriteObject() : GameObject(TYPEID)
                 if (anmFrame > anmFrameCount - 1)
                     anmFrame = anmFrameCount - 1;
                 GameRuntime.DrawAnimatedImageRes(pos.X, actYPos, actionImageIDs[componentIdx], anmFrame);
-                if (fadeColor != Color.Zero)
+                if (fadeColor != Color32.Zero)
                 {
                     GameRuntime.SetGraphics(orgGraphics);
                     BounceGame.SpriteFB.GetRGB(BounceGame.SpriteFBRGB);
                     int rgbIndex = 0;
-                    Color key = Color.FromARGB(0xFF0000FF);
+                    Color32 key = Color32.FromARGB(0xFF0000FF);
                     for (int y = 0; y < BounceGame.SpriteFB.Height; y++)
                     {
                         for (int x = 0; x < BounceGame.SpriteFB.Width; x++)
                         {
                             if (BounceGame.SpriteFBRGB[rgbIndex] == key)
-                                BounceGame.SpriteFBRGB[rgbIndex] = Color.Zero;
+                                BounceGame.SpriteFBRGB[rgbIndex] = Color32.Zero;
                             else
-                                BounceGame.SpriteFBRGB[rgbIndex] = Color.Subtract(BounceGame.SpriteFBRGB[rgbIndex], fadeColor);
+                                BounceGame.SpriteFBRGB[rgbIndex] = Color32.Subtract(BounceGame.SpriteFBRGB[rgbIndex], fadeColor);
                             rgbIndex++;
                         }
                     }

@@ -51,7 +51,7 @@ public class RaylibGraphics(RaylibRenderImage image) : Graphics
         }
     }
 
-    private static Rl.Color RlColor(Color color)
+    private static Rl.Color RlColor(Color32 color)
     {
         return new Rl.Color(color.R, color.G, color.B, color.A);
     }
@@ -64,7 +64,7 @@ public class RaylibGraphics(RaylibRenderImage image) : Graphics
             Rl.Raylib.BeginScissorMode(ClipX * _scale, ClipY * _scale, ClipWidth * _scale, ClipHeight * _scale);
     }
 
-    public override void DrawPixel(int x, int y, Color color)
+    public override void DrawPixel(int x, int y, Color32 color)
     {
         Begin();
         Rl.Raylib.DrawPixel(x, y, RlColor(color));
@@ -94,7 +94,7 @@ public class RaylibGraphics(RaylibRenderImage image) : Graphics
         }
     }
 
-    public override void DrawRGB(ReadOnlySpan<Color> rgbData, int x, int y, int width, int height)
+    public override void DrawRGB(ReadOnlySpan<Color32> rgbData, int x, int y, int width, int height)
     {
         using RaylibImage image = new(rgbData, width, height);
         DrawRegion(image, 0, 0, width, height, Sprite.Transform.NONE, x, y, Anchor.TOP | Anchor.LEFT);
@@ -107,13 +107,13 @@ public class RaylibGraphics(RaylibRenderImage image) : Graphics
         Rl.Raylib.DrawRectangleLines(x, y, width, height, RlColor(Color));
     }
 
-    public override void FillRect(int x, int y, int width, int height, Color color)
+    public override void FillRect(int x, int y, int width, int height, Color32 color)
     {
         Begin();
         Rl.Raylib.DrawRectangle(x, y, width, height, RlColor(color));
     }
 
-    public override void FillArc(int x, int y, int width, int height, int startAngle, int arcAngle, Color color)
+    public override void FillArc(int x, int y, int width, int height, int startAngle, int arcAngle, Color32 color)
     {
         float centerX = x + width / 2f;
         float centerY = y + height / 2f;
@@ -128,7 +128,7 @@ public class RaylibGraphics(RaylibRenderImage image) : Graphics
         Rl.Rlgl.PopMatrix();
     }
 
-    public override void FillTriangle(Vector2I p1, Vector2I p2, Vector2I p3, Color color)
+    public override void FillTriangle(Vector2I p1, Vector2I p2, Vector2I p3, Color32 color)
     {
         Begin();
         Rl.Raylib.DrawTriangle(p1, p2, p3, RlColor(color));

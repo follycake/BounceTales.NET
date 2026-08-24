@@ -31,7 +31,7 @@ public class RaylibGraphicsProvider : BasicGraphicsProvider
         ScreenHeight = Rl.GetScreenHeight() / Scale;
     }
 
-    public override Microedition.Lcdui.Image CreateImage(ReadOnlySpan<Microedition.Lcdui.Color> data, int width, int height)
+    public override Microedition.Lcdui.Image CreateImage(ReadOnlySpan<Microedition.Lcdui.Color32> data, int width, int height)
     {
         return new RaylibImage(data, width, height);
     }

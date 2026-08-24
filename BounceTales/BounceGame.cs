@@ -182,7 +182,7 @@ public sealed class BounceGame
     public static readonly short[] SCRIPT_MESSAGE_IDS = MessageID.SCRIPT_MESSAGE_MAP;
 
     private static readonly int[] SPLASH_SCREEN_LAYOUT_RESIDS = [ResourceID.GRAPHICS_SPLASHLOGO_RES];
-    private static readonly int[] SPLASH_SCREEN_DURATIONS = [100]; // Original: 3000
+    private static readonly int[] SPLASH_SCREEN_DURATIONS = [3000]; // Original: 3000
     private static readonly int[] SPLASH_BG_COLORS = [0xFFFFFF];
     private static readonly int[] SPLASH_IMAGE_IDS = [1];
 
@@ -240,11 +240,11 @@ public sealed class BounceGame
     // State - framebuffers
     public static Graphics BallGraphics;
     public static Image BallFramebuffer;
-    public static Color[] BallFramebufferRGB;
+    public static Color32[] BallFramebufferRGB;
 
     public static Graphics SpriteOffscreenGraphics;
     public static Image SpriteFB;
-    public static Color[] SpriteFBRGB;
+    public static Color32[] SpriteFBRGB;
 
     // State - level
     private bool isLevelActive = false;
@@ -662,7 +662,7 @@ public sealed class BounceGame
         xluSoftkeyBarXs[3] = 0;
         xluSoftkeyBarYs[3] = skbHeight + height;
         directGraphics.FillPolygon(xluSoftkeyBarXs, xluSoftkeyBarYs, 4, 0x55000000);*/
-        graphics.FillRect(0, height, width, skbHeight, Color.FromARGB(0x55000000));
+        graphics.FillRect(0, height, width, skbHeight, Color32.FromARGB(0x55000000));
     }
 
     public static void DrawSoftkeyUI(string str, int type, int xpos, int ypos, int flags)
@@ -806,7 +806,7 @@ public sealed class BounceGame
             xpoints[3] = xpos;
             ypoints[3] = ypos + height;
             directGraphics.FillPolygon(xpoints, ypoints, 4, 0x55000000);*/
-            grp.FillRect(xpos, ypos, width, height, Color.FromARGB(0x55000000));
+            grp.FillRect(xpos, ypos, width, height, Color32.FromARGB(0x55000000));
             GameRuntime.DrawImageRes(xpos, ypos, 311);
             GameRuntime.DrawImageRes(xpos + width, ypos, 312);
             GameRuntime.DrawImageRes(xpos, ypos + height, 309);
@@ -1151,7 +1151,7 @@ public sealed class BounceGame
                 {
                     Image regColors = GameRuntime.GetImageResource(ALL_PARALLAX_IMAGE_IDS[i]);
                     parallaxImagesRegColors[i] = regColors;
-                    Color[] stolenRGB = new Color[regColors.Width * regColors.Height];
+                    Color32[] stolenRGB = new Color32[regColors.Width * regColors.Height];
                     regColors.GetRGB(stolenRGB);
                     for (int rgbIdx = 0; rgbIdx < stolenRGB.Length; rgbIdx++) // TODO: Tidy up this mess
                     {
@@ -1159,7 +1159,7 @@ public sealed class BounceGame
                         int r = rgb >> 16 & 255;
                         int g = rgb >> 8 & 255;
                         int b = rgb & 255;
-                        stolenRGB[rgbIdx] = Color.FromARGB((rgb >>> 24 << 24) + (g + b >> 1 << 16) + (b + r >> 1 << 8) + (r + g >> 1));
+                        stolenRGB[rgbIdx] = Color32.FromARGB((rgb >>> 24 << 24) + (g + b >> 1 << 16) + (b + r >> 1 << 8) + (r + g >> 1));
                     }
                     parallaxImagesStolenColors[i] = Image.CreateImage(stolenRGB, regColors.Width, regColors.Height);
                 }
@@ -1866,7 +1866,7 @@ public sealed class BounceGame
                             BounceObj.SetPosXY(CheckpointPosX, CheckpointPosY);
                             ReqCameraSnap = true;
                             SetPlayerState(PlayerState.PLAY);
-                            BounceObj.FadeColor = Color.FromARGB(0xFF000000);
+                            BounceObj.FadeColor = Color32.FromARGB(0xFF000000);
                             GameRuntime.PlayMusic(GetLevelMusicID(), true);
                         }
                         break;
@@ -2208,12 +2208,12 @@ public sealed class BounceGame
                     BallFramebuffer?.Dispose();
                     BallFramebuffer = Image.CreateRenderImage(BounceObject.BALL_DIMENS_SCREENSPACE[0] * 3, BounceObject.BALL_DIMENS_SCREENSPACE[0] * 3);
                     BallGraphics = BallFramebuffer.GetGraphics();
-                    BallFramebufferRGB = new Color[BallFramebuffer.Width * BallFramebuffer.Height];
+                    BallFramebufferRGB = new Color32[BallFramebuffer.Width * BallFramebuffer.Height];
 
                     SpriteFB?.Dispose();
                     SpriteFB = Image.CreateRenderImage(112, 26);
                     SpriteOffscreenGraphics = SpriteFB.GetGraphics();
-                    SpriteFBRGB = new Color[SpriteFB.Width * SpriteFB.Height];
+                    SpriteFBRGB = new Color32[SpriteFB.Width * SpriteFB.Height];
                     return 1;
                 }
                 if (sceneResult != 1)
@@ -2497,7 +2497,7 @@ public sealed class BounceGame
         SuperBounceParticle.ParticleCount = -1;
         ColorMachineDestroyParticle.ParticleCount = -1;
         AirTunnelParticle.ParticleCount = -1;
-        BounceObj.FadeColor = Color.FromARGB(0xFF000000);
+        BounceObj.FadeColor = Color32.FromARGB(0xFF000000);
         bool noBonusLevelsBeaten = true;
         for (int bonusLevelIdx = 0; bonusLevelIdx < BONUS_LEVEL_INFO.Length; bonusLevelIdx += 2)
         {

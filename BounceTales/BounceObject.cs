@@ -96,7 +96,7 @@ public sealed class BounceObject : GameObject
 
     // State - visuals
     public bool IsVisible = true;
-    public Color FadeColor = Color.Zero;
+    public Color32 FadeColor = Color32.Zero;
 
     // State - physics
     public bool EnablePhysics = true;
@@ -734,7 +734,7 @@ public sealed class BounceObject : GameObject
                     case Forme.BOUNCE:
                         {
                             Graphics orgGraphics = GameRuntime.GetGraphicsObj();
-                            if (FadeColor != Color.Zero)
+                            if (FadeColor != Color32.Zero)
                             {
                                 BounceGame.BallGraphics.SetColor(0x0000FF);
                                 BounceGame.BallGraphics.FillRect(0, 0, BounceGame.BallFramebuffer.Width, BounceGame.BallFramebuffer.Height);
@@ -816,20 +816,20 @@ public sealed class BounceObject : GameObject
                             GameRuntime.DrawImageRes(fbBallCX, fbBallCY, 17);
                             FillStretchedCircle(highlightX, highlightY, i16 >> 1, BALL_DIMENS_SCREENSPACE[(int)BallForme], BOUNCE_HIGHLIGHT_COLOR, graphics2, false, false);
                             GameRuntime.DrawImageRes(fbBallCX, fbBallCY, 28);
-                            if (FadeColor != Color.Zero) // TODO: We could make this more efficient by adding a tint argument to DrawRegion.
+                            if (FadeColor != Color32.Zero) // TODO: We could make this more efficient by adding a tint argument to DrawRegion.
                             {
                                 GameRuntime.SetGraphics(orgGraphics);
                                 BounceGame.BallFramebuffer.GetRGB(BounceGame.BallFramebufferRGB);
                                 int rgbIdx = 0;
-                                Color key = Color.FromARGB(0xFF0000FF);
+                                Color32 key = Color32.FromARGB(0xFF0000FF);
                                 for (int y = 0; y < BounceGame.BallFramebuffer.Height; y++)
                                 {
                                     for (int x = 0; x < BounceGame.BallFramebuffer.Width; x++)
                                     {
                                         if (BounceGame.BallFramebufferRGB[rgbIdx] == key)
-                                            BounceGame.BallFramebufferRGB[rgbIdx] = Color.Zero;
+                                            BounceGame.BallFramebufferRGB[rgbIdx] = Color32.Zero;
                                         else
-                                            BounceGame.BallFramebufferRGB[rgbIdx] = Color.Subtract(BounceGame.BallFramebufferRGB[rgbIdx], FadeColor);
+                                            BounceGame.BallFramebufferRGB[rgbIdx] = Color32.Subtract(BounceGame.BallFramebufferRGB[rgbIdx], FadeColor);
                                         rgbIdx++;
                                     }
                                 }
@@ -1111,7 +1111,7 @@ public sealed class BounceObject : GameObject
                     IdleAnimStartTimer = 3000;
                 }
             }
-            if (FadeColor != Color.Zero)
+            if (FadeColor != Color32.Zero)
             {
                 int fadeAlpha = FadeColor.ToARGB() >>> 24;
                 int alphaDecrement = GameRuntime.UpdateDelta / 2;
@@ -1120,7 +1120,7 @@ public sealed class BounceObject : GameObject
                 int newFadeAlpha = fadeAlpha - alphaDecrement;
                 if (newFadeAlpha < 0)
                     newFadeAlpha = 0;
-                FadeColor = Color.FromARGB((uint)(newFadeAlpha << 24));
+                FadeColor = Color32.FromARGB((uint)(newFadeAlpha << 24));
             }
         }
     }

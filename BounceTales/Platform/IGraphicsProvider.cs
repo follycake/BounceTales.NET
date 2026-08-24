@@ -10,7 +10,7 @@ public interface IGraphicsProvider : IProvider
     Graphics GetGraphics();
     void FlushGraphics();
 
-    Image CreateImage(ReadOnlySpan<Color> data, int width, int height);
+    Image CreateImage(ReadOnlySpan<Color32> data, int width, int height);
     Image CreateRenderImage(int width, int height);
 }
 
@@ -45,7 +45,7 @@ public abstract class BasicGraphicsProvider : IGraphicsProvider
         }
     }
 
-    public abstract Image CreateImage(ReadOnlySpan<Color> data, int width, int height);
+    public abstract Image CreateImage(ReadOnlySpan<Color32> data, int width, int height);
     public abstract Image CreateRenderImage(int width, int height);
 
     protected virtual void Dispose(bool disposing)

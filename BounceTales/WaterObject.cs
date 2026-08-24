@@ -265,7 +265,7 @@ public sealed class WaterObject() : GameObject(TYPEID)
                     }
                     p3 = new(p2.X, max.Y);
 
-                    graphics.FillQuad(p0, p1, p2, p3, Color.FromARGB(BounceGame.GetStolenColorIfApplicable(color)));
+                    graphics.FillQuad(p0, p1, p2, p3, Color32.FromARGB(BounceGame.GetStolenColorIfApplicable(color)));
 
                     p0 = p3;
                     p1 = p2;

@@ -20,15 +20,15 @@ public abstract class Graphics
     public abstract int ClipHeight { get; }
 
     public Font Font => _font;
-    public Color Color => _color;
+    public Color32 Color => _color;
 
     private Font _font;
-    private Color _color; // TODO: We should probably let the backend decide how to store colors...
+    private Color32 _color; // TODO: We should probably let the backend decide how to store colors...
 
     // Ignores alpha
     public void SetColor(int RGB)
     {
-        _color = Color.FromRGB(RGB, 255);
+        _color = Color32.FromRGB(RGB, 255);
     }
 
     public void SetFont(Font font)
@@ -38,11 +38,11 @@ public abstract class Graphics
 
     public abstract void SetClip(int x, int y, int width, int height);
 
-    public abstract void DrawPixel(int x, int y, Color color);
+    public abstract void DrawPixel(int x, int y, Color32 color);
 
     public abstract void DrawRegion(Image src, int xSrc, int ySrc, int width, int height, Sprite.Transform transform, int xDst, int yDst, Anchor anchor);
 
-    public abstract void DrawRGB(ReadOnlySpan<Color> rgbData, int x, int y, int width, int height);
+    public abstract void DrawRGB(ReadOnlySpan<Color32> rgbData, int x, int y, int width, int height);
 
     public virtual void DrawSubstring(string str, int offset, int len, int x, int y, Anchor anchor) => DrawString(str.Substring(offset, len), x, y, anchor);
 
@@ -66,13 +66,13 @@ public abstract class Graphics
         FillRect(x + width - 1, y, 1, height);
     }
 
-    public abstract void FillRect(int x, int y, int width, int height, Color color);
+    public abstract void FillRect(int x, int y, int width, int height, Color32 color);
 
-    public abstract void FillArc(int x, int y, int width, int height, int startAngle, int arcAngle, Color color);
+    public abstract void FillArc(int x, int y, int width, int height, int startAngle, int arcAngle, Color32 color);
 
-    public abstract void FillTriangle(Vector2I p1, Vector2I p2, Vector2I p3, Color color);
+    public abstract void FillTriangle(Vector2I p1, Vector2I p2, Vector2I p3, Color32 color);
 
-    public virtual void FillQuad(Vector2I p1, Vector2I p2, Vector2I p3, Vector2I p4, Color color)
+    public virtual void FillQuad(Vector2I p1, Vector2I p2, Vector2I p3, Vector2I p4, Color32 color)
     {
         FillTriangle(p3, p2, p1, color);
         FillTriangle(p1, p4, p3, color);
