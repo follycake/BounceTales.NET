@@ -203,8 +203,8 @@ public sealed class BounceGame
     private static int totalGameTime;
     private int gameMainState = 1;
 
-    private static bool reqQuit = false; // added in 2.0.25 for more game URL action
-    private static bool reqPlayTitleMusic = false;
+    private static bool reqQuit; // added in 2.0.25 for more game URL action
+    private static bool reqPlayTitleMusic;
 
     private static int renderClipWidth = GameRuntime.CurrentWidth;
     private static int renderClipHeight = GameRuntime.CurrentHeight;
@@ -214,24 +214,24 @@ public sealed class BounceGame
 
     // State - layout core
     private readonly UILayout ui = new();
-    private UILayout drawUI = null;
+    private UILayout drawUI;
 
     // State - loading
     private int curSplashId;
     private long splashScreenStartTime;
 
-    private static bool hasLoadingProgressBar = false;
-    private int loadingProgressBar = 0;
+    private static bool hasLoadingProgressBar;
+    private int loadingProgressBar;
 
     // State - menus
     private static GameScene exitLevelReturnScene = GameScene.MENU_TITLE;
-    private static int lastMenuOption = 0;
+    private static int lastMenuOption;
 
     private static LevelID selectedLevelId = 0;
     private static LevelID lastSelectedLevelId = 0;
 
-    private static int bookAnimationTime = 0;
-    private static int targetBookAnimationTime = 0;
+    private static int bookAnimationTime;
+    private static int targetBookAnimationTime;
 
     // State - softkey bar polygon coordinates
     //private static readonly int[] xluSoftkeyBarXs = new int[4];
@@ -247,10 +247,10 @@ public sealed class BounceGame
     public static Color32[] SpriteFBRGB;
 
     // State - level
-    private bool isLevelActive = false;
+    private bool isLevelActive;
     private static bool isBlockingEvent;
 
-    public static bool ReqCameraSnap = false;
+    public static bool ReqCameraSnap;
     public static bool LevelPaused;
     public static LevelID CurrentLevel;
 
@@ -307,10 +307,10 @@ public sealed class BounceGame
 
     private static readonly int[] fieldMessageQueue = new int[5];
     private static int fieldMessagePointer;
-    private static string[] fieldMessageParam = null;
+    private static string[] fieldMessageParam;
 
-    private bool reqQuitLevelAfterFieldMessage = false;
-    private static bool reqReloadFieldMsg = false;
+    private bool reqQuitLevelAfterFieldMessage;
+    private static bool reqReloadFieldMsg;
 
     // State - parallax
     private static Image[] parallaxImagesRegColors;
@@ -331,9 +331,9 @@ public sealed class BounceGame
     private int timerChallengeTrophy = -1;
     private int collectionChallengeTrophy = -1;
 
-    private bool wasFinalLevelJustBeaten = false;
-    private bool wasSuperBounceJustUnlocked = false;
-    private bool highScoreBeaten = false;
+    private bool wasFinalLevelJustBeaten;
+    private bool wasSuperBounceJustUnlocked;
+    private bool highScoreBeaten;
 
     static BounceGame()
     {
