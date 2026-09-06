@@ -5,7 +5,7 @@ using BounceTales.Microedition.Lcdui;
 
 namespace BounceTales;
 
-public sealed class GameRuntime : Displayable, IResourceHandler
+public sealed class GameRuntime : IResourceHandler
 {
     public enum ScreenOrientation
     {
@@ -618,7 +618,6 @@ public sealed class GameRuntime : Displayable, IResourceHandler
         int mapType;
         int dataStride;
         byte[] paramSrc;
-        Image image;
         int resIndex = 0;
         if (mapId < imageMaps.Length)
         {
@@ -641,6 +640,7 @@ public sealed class GameRuntime : Displayable, IResourceHandler
         if (mapType == 0 || mapType == -99)
         {
             Span<short> tempImageDrawParams = stackalloc short[6];
+            Image image;
             if (mapType == 0)
             {
                 if (dataStride == 2)
@@ -965,7 +965,6 @@ public sealed class GameRuntime : Displayable, IResourceHandler
 
     private static void OnKeyEvent(int keyCode, KeyEventFlags flags)
     {
-        KeyCode keyId;
         if (!disableHID && isGamePaintEnabled)
         {
             // We don't really need this anymore.
@@ -981,7 +980,7 @@ public sealed class GameRuntime : Displayable, IResourceHandler
                 }
             }
             else*/
-            keyId = (KeyCode)keyCode;
+            KeyCode keyId = (KeyCode)keyCode;
             if (controlMode == ControlMode.GAME) // convert numbers to directional keys
             {
                 keyId = keyId switch
@@ -999,9 +998,7 @@ public sealed class GameRuntime : Displayable, IResourceHandler
                 if ((flags & KeyEventFlags.PRESS) == KeyEventFlags.PRESS)
                 {
                     if (keyQueueSize < 20)
-                    {
                         keyQueue[keyQueueSize++] = keyId;
-                    }
                     if (keyId != KeyCode.INVALID)
                     {
                         buttonsDown |= 1 << (int)keyId;
@@ -1099,15 +1096,14 @@ public sealed class GameRuntime : Displayable, IResourceHandler
                 for (int i = 0; i < residentCount; i++)
                     resident[i] = new ResidentResHeader(dis);
             }
-            for (int i = 0; i < resident.Length; i++)
+            foreach (ResidentResHeader h in resident)
             {
-                ResidentResHeader h = resident[i];
                 using DataInputStream strm = GetStreamForRscId(h.ResId);
                 if (strm != null)
                 {
-                    for (int gameRtIdx = 0; gameRtIdx < resHandlers.Length; gameRtIdx++)
+                    foreach (IResourceHandler resHandler in resHandlers)
                     {
-                        if (resHandlers[gameRtIdx].LoadResidentData(strm, h.Type))
+                        if (resHandler.LoadResidentData(strm, h.Type))
                             break;
                     }
                 }
@@ -1180,12 +1176,9 @@ public sealed class GameRuntime : Displayable, IResourceHandler
 
     private static void ProcessResourceLoad()
     {
-        int newCurStreamPos;
-        string newLastRscPath;
         List<int[]> vector = [];
-        for (int i = 0; i < resLoadQueue.Count; i++)
+        foreach (int batchId in resLoadQueue)
         {
-            int batchId = resLoadQueue[i];
             if (!isResourceLoaded[batchId])
             {
                 int firstAvailInsertIdx = 0;
@@ -1227,11 +1220,10 @@ public sealed class GameRuntime : Displayable, IResourceHandler
         string lastRscPath = null;
         int curStreamPos = 0;
 
-        for (int index = 0; index < vector.Count; index++)
+        foreach (int[] resLoadInfo in vector)
         {
             try
             {
-                int[] resLoadInfo = vector[index];
                 int batchId = resLoadInfo[0];
                 int subResIdx = resLoadInfo[1];
                 int rscId = resLoadInfo[2];
@@ -1290,9 +1282,9 @@ public sealed class GameRuntime : Displayable, IResourceHandler
                 }
                 else if (readLength != 0)
                 {
-                    for (int i = 0; i < resHandlers.Length; i++)
+                    foreach (IResourceHandler resHandler in resHandlers)
                     {
-                        if (resHandlers[i].LoadResource(lastStream, readLength == -1 ? rscPath : null, readLength, resourceBatchInfo[batchId].ResType, batchId, subResIdx))
+                        if (resHandler.LoadResource(lastStream, readLength == -1 ? rscPath : null, readLength, resourceBatchInfo[batchId].ResType, batchId, subResIdx))
                         {
                             subResLoadSuccess = true;
                             break;
@@ -1301,6 +1293,8 @@ public sealed class GameRuntime : Displayable, IResourceHandler
                 }
                 if (!subResLoadSuccess && skipOffset != -1)
                     ForceSkipBytes(lastStream, readLength);
+                int newCurStreamPos;
+                string newLastRscPath;
                 if (lastStream != null)
                 {
                     newCurStreamPos = skipOffset + readLength;
@@ -1331,8 +1325,8 @@ public sealed class GameRuntime : Displayable, IResourceHandler
                 Debug.WriteLine(ex);
             }
         }
-        for (int batchIndex = 0; batchIndex < resLoadQueue.Count; batchIndex++)
-            isResourceLoaded[resLoadQueue[batchIndex]] = true;
+        foreach (int res in resLoadQueue)
+            isResourceLoaded[res] = true;
         resLoadQueue.Clear();
     }
 
@@ -1396,17 +1390,15 @@ public sealed class GameRuntime : Displayable, IResourceHandler
         {
             case ResourceType.IMAGE:
                 byte[] texAtlasInfo = (byte[])loadedResources[unloadResId];
-                for (int k = 0; k < imageMaps2.Length; k++)
+                foreach (ImageMapEx m2 in imageMaps2)
                 {
-                    ImageMapEx m2 = imageMaps2[k];
                     if (m2.ResBatchId == unloadResId)
                         m2.Clear();
                 }
                 short startImageId = GetShortFromByteArray(texAtlasInfo, 0);
                 short endImageId = GetShortFromByteArray(texAtlasInfo, 2);
-                for (int k = 0; k < imageMaps.Length; k++)
+                foreach (ImageMap m in imageMaps)
                 {
-                    ImageMap m = imageMaps[k];
                     if (m.ImageId >= startImageId && m.ImageId < endImageId)
                         m.Clear();
                 }
@@ -1870,8 +1862,8 @@ public sealed class GameRuntime : Displayable, IResourceHandler
 
     private static void UpdateViewport()
     {
-        int width = mInstance.GetWidth();
-        int height = mInstance.GetHeight();
+        int width = MidLet.Graphics.ScreenWidth;
+        int height = MidLet.Graphics.ScreenHeight;
         if (CurrentWidth != width || CurrentHeight != height)
         {
             CurrentWidth = width;

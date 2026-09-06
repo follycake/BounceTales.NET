@@ -1,7 +1,7 @@
 ﻿namespace BounceTales.Ext.Rsc;
 
-public class ResidentResHeader(IDataInput input)
+public readonly struct ResidentResHeader(IDataInput input)
 {
-    public short Type = input.ReadShort();
-    public short ResId = input.ReadShort();
+    public readonly short Type = input.ReadShort();
+    public readonly short ResId = input.ReadShort();
 }

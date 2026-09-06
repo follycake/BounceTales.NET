@@ -19,21 +19,18 @@ public abstract class Graphics
     public abstract int ClipWidth { get; }
     public abstract int ClipHeight { get; }
 
-    public Font Font => _font;
-    public Color32 Color => _color;
-
-    private Font _font;
-    private Color32 _color; // TODO: We should probably let the backend decide how to store colors...
+    public Font Font { get; private set; }
+    public Color32 Color { get; private set; }
 
     // Ignores alpha
     public void SetColor(int RGB)
     {
-        _color = Color32.FromRGB(RGB, 255);
+        Color = Color32.FromRGB(RGB);
     }
 
     public void SetFont(Font font)
     {
-        _font = font;
+        Font = font;
     }
 
     public abstract void SetClip(int x, int y, int width, int height);
@@ -48,13 +45,12 @@ public abstract class Graphics
 
     public virtual void DrawString(string str, int x, int y, Anchor anchor)
     {
-        x += AnchorX(anchor, _font.StringWidth(str));
-        y += AnchorY(anchor, _font.GetHeight());
-        for (int i = 0; i < str.Length; i++)
+        x += AnchorX(anchor, Font.StringWidth(str));
+        y += AnchorY(anchor, Font.GetHeight());
+        foreach (char c in str)
         {
-            char c = str[i];
-            _font.DrawChar(this, x, y, c);
-            x += _font.CharWidth(c);
+            Font.DrawChar(this, x, y, c);
+            x += Font.CharWidth(c);
         }
     }
 
@@ -78,10 +74,10 @@ public abstract class Graphics
         FillTriangle(p1, p4, p3, color);
     }
 
-    public void DrawPixel(int x, int y) => DrawPixel(x, y, _color);
-    public void FillRect(int x, int y, int width, int height) => FillRect(x, y, width, height, _color);
-    public void FillArc(int x, int y, int width, int height, int startAngle, int arcAngle) => FillArc(x, y, width, height, startAngle, arcAngle, _color);
-    public void FillTriangle(Vector2I p1, Vector2I p2, Vector2I p3) => FillTriangle(p1, p2, p3, _color);
+    public void DrawPixel(int x, int y) => DrawPixel(x, y, Color);
+    public void FillRect(int x, int y, int width, int height) => FillRect(x, y, width, height, Color);
+    public void FillArc(int x, int y, int width, int height, int startAngle, int arcAngle) => FillArc(x, y, width, height, startAngle, arcAngle, Color);
+    public void FillTriangle(Vector2I p1, Vector2I p2, Vector2I p3) => FillTriangle(p1, p2, p3, Color);
 
     protected static int AnchorX(Anchor anchor, int width)
     {

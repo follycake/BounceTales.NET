@@ -2,7 +2,7 @@
 
 namespace BounceTales.Microedition.Lcdui;
 
-public class Sprite
+public static class Sprite
 {
     // Displays as clockwise visually
     public enum Transform
