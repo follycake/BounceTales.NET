@@ -1,0 +1,14 @@
+<Project Sdk="Godot.NET.Sdk/4.7.2">
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <EnableDynamicLoading>true</EnableDynamicLoading>
+        <PublishAot>true</PublishAot>
+    </PropertyGroup>
+    <ItemGroup>
+        <TrimmerRootAssembly Include="GodotSharp" />
+        <TrimmerRootAssembly Include="$(TargetName)" />
+    </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\BounceTales\BounceTales.csproj" />
+    </ItemGroup>
+</Project>

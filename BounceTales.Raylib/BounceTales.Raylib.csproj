@@ -18,7 +18,7 @@
     </ItemGroup>
     
     <ItemGroup>
-        <Content Include="GeneralUser-GS.sf2" CopyToOutputDirectory="PreserveNewest" />
+        <Content Include="Chaos_Bank.sf2" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
 
 </Project>

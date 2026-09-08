@@ -53,7 +53,7 @@ internal static class Program
         Rl.PlayAudioStream(stream);
         
         using RMIDlet midlet = new();
-        MeltySynthProvider synth = new(new Synthesizer("GeneralUser-GS.sf2", SampleRate));
+        MeltySynthProvider synth = new(new Synthesizer("Chaos_Bank.sf2", SampleRate));
         midlet.Graphics = graphicsProvider;
         midlet.Audio = synth;
         midlet.Start();

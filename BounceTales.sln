@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BounceTales.Raylib", "Bounc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BigGustave", "BigGustave\src\BigGustave\BigGustave.csproj", "{409C1F41-5399-4E69-896D-1A8AC85F542C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BounceTales.Godot", "BounceTales.Godot\BounceTales.Godot.csproj", "{FE95DDDD-6FF8-4F99-9699-3847D39BE96E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{409C1F41-5399-4E69-896D-1A8AC85F542C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{409C1F41-5399-4E69-896D-1A8AC85F542C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{409C1F41-5399-4E69-896D-1A8AC85F542C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE95DDDD-6FF8-4F99-9699-3847D39BE96E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE95DDDD-6FF8-4F99-9699-3847D39BE96E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE95DDDD-6FF8-4F99-9699-3847D39BE96E}.Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE95DDDD-6FF8-4F99-9699-3847D39BE96E}.Release|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 EndGlobal

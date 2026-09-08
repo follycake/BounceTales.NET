@@ -1,0 +1,37 @@
+[gd_scene format=3 uid="uid://cbam2v7hatyee"]
+
+[ext_resource type="Script" uid="uid://c0id6yowq2w7d" path="res://Game.cs" id="1_80nbo"]
+
+[sub_resource type="AudioStreamGenerator" id="AudioStreamGenerator_0ki8f"]
+buffer_length = 0.1
+
+[node name="Game" type="Control" unique_id=1476944256]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_80nbo")
+
+[node name="MusicPlayer" type="AudioStreamPlayer" parent="." unique_id=739418246]
+unique_name_in_owner = true
+stream = SubResource("AudioStreamGenerator_0ki8f")
+
+[node name="SubViewportContainer" type="SubViewportContainer" parent="." unique_id=1915869279]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+stretch = true
+
+[node name="SubViewport" type="SubViewport" parent="SubViewportContainer" unique_id=1795537611]
+unique_name_in_owner = true
+handle_input_locally = false
+canvas_item_default_texture_filter = 0
+size = Vector2i(240, 320)
+render_target_update_mode = 4
+
+[node name="Canvas" type="Node2D" parent="SubViewportContainer/SubViewport" unique_id=1832035680]
