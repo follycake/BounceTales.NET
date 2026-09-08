@@ -6,6 +6,8 @@ namespace BounceTales.Microedition.Lcdui;
 public struct Color32(byte r, byte g, byte b, byte a = 255) : IEquatable<Color32>
 {
     public static readonly Color32 Zero = new(0, 0, 0, 0);
+    public static readonly Color32 Black = new(0, 0, 0);
+    public static readonly Color32 Blue = new(0, 0, 255);
 
     public byte R = r;
     public byte G = g;
@@ -25,8 +27,7 @@ public struct Color32(byte r, byte g, byte b, byte a = 255) : IEquatable<Color32
     {
         return new Color32((byte)((rgb & 0xFF0000) >> 16), (byte)((rgb & 0x00FF00) >> 8), (byte)(rgb & 0x0000FF), a);
     }
-
-    // TODO: Reduce number of calls to FromARGB. Translate hex to the Color constructor.
+    
     public static Color32 FromARGB(int argb)
     {
         return new Color32((byte)((argb & 0xFF0000) >> 16), (byte)((argb & 0x00FF00) >> 8), (byte)(argb & 0x0000FF), (byte)((argb & 0xFF000000) >> 24));

@@ -23,9 +23,15 @@ public abstract class Graphics
     public Color32 Color { get; private set; }
 
     // Ignores alpha
+    // TODO: Reduce number of calls to SetColor(int RGB). Translate hex to the Color32 constructor.
     public void SetColor(int RGB)
     {
         Color = Color32.FromRGB(RGB);
+    }
+
+    public void SetColor(Color32 color)
+    {
+        Color = color;
     }
 
     public void SetFont(Font font)

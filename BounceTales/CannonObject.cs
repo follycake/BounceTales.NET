@@ -94,9 +94,9 @@ public sealed class CannonObject() : GameObject(TYPEID)
 
     public override void OnPlayerContact()
     {
-        if (reloadCooldown == 0 && BounceGame.GetControllerState() == BounceGame.Controller.NORMAL)
+        if (reloadCooldown == 0 && BounceGame.CurrentControllerState == BounceGame.Controller.NORMAL)
         {
-            BounceGame.SetControllerState(BounceGame.Controller.CANNON);
+            BounceGame.CurrentControllerState = BounceGame.Controller.CANNON;
             BounceGame.CurrentCannon = this;
             BounceObject bounce = (BounceObject)GetObjectRoot().SearchByObjId(bounceObjId);
             LoadObjectMatrixToTarget(out TmpObjMatrix);
@@ -115,7 +115,7 @@ public sealed class CannonObject() : GameObject(TYPEID)
         if (animCountdown > 0)
         {
             animCountdown -= GameRuntime.UpdateDelta;
-            if (animCountdown <= FIRING_FRAME_LENGTH && BounceGame.GetControllerState() == BounceGame.Controller.CANNON)
+            if (animCountdown <= FIRING_FRAME_LENGTH && BounceGame.CurrentControllerState == BounceGame.Controller.CANNON)
             {
                 BounceObject bounce = (BounceObject)GetObjectRoot().SearchByObjId(bounceObjId);
                 bounce.LastXVelocity = 0.0f;
@@ -128,7 +128,7 @@ public sealed class CannonObject() : GameObject(TYPEID)
                 bounce.IsVisible = true;
                 bounce.TorqueX = 0.0f;
                 bounce.TorqueY = 0.0f;
-                BounceGame.SetControllerState(BounceGame.Controller.NORMAL);
+                BounceGame.CurrentControllerState = BounceGame.Controller.NORMAL;
                 reloadCooldown = 500;
                 LoadObjectMatrixToTarget(out TmpObjMatrix);
                 Vector2I head = TmpObjMatrix.MulVector(120 << 16, 0);

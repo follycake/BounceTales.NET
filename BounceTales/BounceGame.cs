@@ -613,26 +613,17 @@ public sealed class BounceGame
             fieldMessagePointer--;
         }
     }
-
-    // TODO: Convert to a static property
-    public static void SetPlayerState(PlayerState state)
+    
+    public static PlayerState CurrentPlayerState
     {
-        EventObject.EventVars[0] = (int)state;
+        get => (PlayerState)EventObject.EventVars[0];
+        set => EventObject.EventVars[0] = (int)value;
     }
 
-    public static PlayerState GetPlayerState()
+    public static Controller CurrentControllerState
     {
-        return (PlayerState)EventObject.EventVars[0];
-    }
-
-    public static void SetControllerState(Controller state)
-    {
-        EventObject.EventVars[1] = (int)state;
-    }
-
-    public static Controller GetControllerState()
-    {
-        return (Controller)EventObject.EventVars[1];
+        get => (Controller)EventObject.EventVars[1];
+        set => EventObject.EventVars[1] = (int)value;
     }
 
     private static void UpdateLevelStats(LevelID levelId, short eggCount, short clearTime, short score)
@@ -662,7 +653,7 @@ public sealed class BounceGame
         xluSoftkeyBarXs[3] = 0;
         xluSoftkeyBarYs[3] = skbHeight + height;
         directGraphics.FillPolygon(xluSoftkeyBarXs, xluSoftkeyBarYs, 4, 0x55000000);*/
-        graphics.FillRect(0, height, width, skbHeight, Color32.FromARGB(0x55000000));
+        graphics.FillRect(0, height, width, skbHeight, new Color32(0, 0, 0, 0x55));
     }
 
     public static void DrawSoftkeyUI(string str, int type, int xpos, int ypos, int flags)
@@ -806,7 +797,7 @@ public sealed class BounceGame
             xpoints[3] = xpos;
             ypoints[3] = ypos + height;
             directGraphics.FillPolygon(xpoints, ypoints, 4, 0x55000000);*/
-            grp.FillRect(xpos, ypos, width, height, Color32.FromARGB(0x55000000));
+            grp.FillRect(xpos, ypos, width, height, new Color32(0, 0, 0, 0x55));
             GameRuntime.DrawImageRes(xpos, ypos, 311);
             GameRuntime.DrawImageRes(xpos + width, ypos, 312);
             GameRuntime.DrawImageRes(xpos, ypos + height, 309);
@@ -1214,7 +1205,7 @@ public sealed class BounceGame
         isLevelActive = false;
         GameRuntime.StartLoadScene(GameScene.EXIT_LEVEL);
         exitLevelReturnScene = GameScene.INFO_CHAPTER_COMPLETE;
-        SetPlayerState(PlayerState.PLAY);
+        CurrentPlayerState = PlayerState.PLAY;
     }
 
     private static void UnloadLevel()
@@ -1754,13 +1745,13 @@ public sealed class BounceGame
             {
                 totalGameTime += GameRuntime.UpdateDelta;
                 WaterSingletonFlag = false;
-                switch (GetPlayerState())
+                switch (CurrentPlayerState)
                 {
                     case PlayerState.PLAY:
                         BounceObj.ZCoord = 0;
-                        if (GetControllerState() != Controller.FROZEN)
+                        if (CurrentControllerState != Controller.FROZEN)
                             LevelTimer += GameRuntime.UpdateDelta;
-                        if (GetControllerState() == Controller.NORMAL)
+                        if (CurrentControllerState == Controller.NORMAL)
                         {
                             bool bounceMoving;
                             if (GameRuntime.CheckButton(KeyCode.LEFT))
@@ -1788,7 +1779,7 @@ public sealed class BounceGame
                                 BounceObj.IdleAnimStartTimer = 3000;
                             }
                         }
-                        else if (GetControllerState() == Controller.CANNON)
+                        else if (CurrentControllerState == Controller.CANNON)
                         {
                             if (GameRuntime.CheckButton(KeyCode.UP))
                                 CurrentCannon.RotateUp();
@@ -1801,10 +1792,10 @@ public sealed class BounceGame
                         UpdateEvents();
                         if (EventObject.EventVars[4] == 0 && i2 != 0)
                             BounceObj.ResetPhysics();
-                        if (BounceObj.LocalObjectMatrix.TranslationY < RootLevelObj.AllBBox.MinY && GetPlayerState() == PlayerState.WIN)
-                            SetPlayerState(PlayerState.LOSE); // sanity death boundary
+                        if (BounceObj.LocalObjectMatrix.TranslationY < RootLevelObj.AllBBox.MinY && CurrentPlayerState == PlayerState.WIN)
+                            CurrentPlayerState = PlayerState.LOSE; // sanity death boundary
                         if (EggCount == bonusLevelEggLimit && IsBonusLevel(CurrentLevel))
-                            SetPlayerState(PlayerState.WIN);
+                            CurrentPlayerState = PlayerState.WIN;
                         EventObject.EventVars[3] = (int)BounceObj.BallForme;
                         EventObject.EventVars[4] = (int)BounceObj.CurVelocity;
                         EventObject.EventVars[5] = (int)BounceObj.CurXVelocity;
@@ -1842,7 +1833,7 @@ public sealed class BounceGame
                         break;
                     case PlayerState.LOSE:
                         GameRuntime.PlayMusic(ResourceID.AUDIO_ME_LOSE_MID, false);
-                        SetPlayerState(PlayerState.LOSE_UPDATE);
+                        CurrentPlayerState = PlayerState.LOSE_UPDATE;
                         ExitWaitTimer = 3000;
                         DeathBaseY = BounceObj.LocalObjectMatrix.TranslationY;
                         /*if (currentLevel == LevelID.FINAL_RIDE) { // removed in 2.0.25
@@ -1851,7 +1842,7 @@ public sealed class BounceGame
                         break;
                     case PlayerState.WIN:
                         GameRuntime.PlayMusic(ResourceID.AUDIO_ME_WIN_MID, false);
-                        SetPlayerState(PlayerState.WIN_UPDATE);
+                        CurrentPlayerState = PlayerState.WIN_UPDATE;
                         ExitWaitTimer = 3000;
                         BounceObj.ResetPhysics();
                         if (IsBonusLevel(CurrentLevel))
@@ -1865,8 +1856,8 @@ public sealed class BounceGame
                         {
                             BounceObj.SetPosXY(CheckpointPosX, CheckpointPosY);
                             ReqCameraSnap = true;
-                            SetPlayerState(PlayerState.PLAY);
-                            BounceObj.FadeColor = Color32.FromARGB(0xFF000000);
+                            CurrentPlayerState = PlayerState.PLAY;
+                            BounceObj.FadeColor = Color32.Black;
                             GameRuntime.PlayMusic(GetLevelMusicID(), true);
                         }
                         break;
@@ -2478,8 +2469,8 @@ public sealed class BounceGame
         //GeometryObject.TEMP_QUAD_XS = new int[maxVerticesPerObj];
         //GeometryObject.TEMP_QUAD_YS = new int[maxVerticesPerObj];
         EventObject.EventVars = new int[72];
-        SetPlayerState(PlayerState.PLAY);
-        SetControllerState(Controller.NORMAL);
+        CurrentPlayerState = PlayerState.PLAY;
+        CurrentControllerState = Controller.NORMAL;
         EventObject.EventVars[2] = 0;
         EventObject.EventVars[7] = 0;
         GameRuntime.UnloadResource(LEVEL_RESIDS[(int)CurrentLevel]);
@@ -2497,7 +2488,7 @@ public sealed class BounceGame
         SuperBounceParticle.ParticleCount = -1;
         ColorMachineDestroyParticle.ParticleCount = -1;
         AirTunnelParticle.ParticleCount = -1;
-        BounceObj.FadeColor = Color32.FromARGB(0xFF000000);
+        BounceObj.FadeColor = Color32.Black;
         bool noBonusLevelsBeaten = true;
         for (int bonusLevelIdx = 0; bonusLevelIdx < BONUS_LEVEL_INFO.Length; bonusLevelIdx += 2)
         {
@@ -2541,7 +2532,7 @@ public sealed class BounceGame
                     LevelPaused = true;
                     break;
                 case KeyCode.STAR:
-                    if (GetControllerState() == Controller.NORMAL && GetPlayerState() != PlayerState.LOSE_UPDATE)
+                    if (CurrentControllerState == Controller.NORMAL && CurrentPlayerState != PlayerState.LOSE_UPDATE)
                         BounceObj.CycleForme();
                     break;
             }

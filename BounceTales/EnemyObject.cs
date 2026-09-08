@@ -215,7 +215,7 @@ public sealed class EnemyObject() : GameObject(TYPEID)
                 if (BounceGame.BounceObj.BallForme == BounceObject.Forme.BUMPY_CRACKS)
                     KillAndDropEgg();
                 else
-                    BounceGame.SetPlayerState(BounceGame.PlayerState.LOSE);
+                    BounceGame.CurrentPlayerState = BounceGame.PlayerState.LOSE;
                 break;
             case Type.MOLE:
                 if (rechargeTimer <= 0 && propelType == 0 && state == 0)
@@ -226,7 +226,7 @@ public sealed class EnemyObject() : GameObject(TYPEID)
                 }
                 break;
             case Type.STALKER_UNUSED:
-                BounceGame.SetPlayerState(BounceGame.PlayerState.LOSE);
+                BounceGame.CurrentPlayerState = BounceGame.PlayerState.LOSE;
                 LocalObjectMatrix.TranslationX = stalkerInitX;
                 LocalObjectMatrix.TranslationY = stalkerInitY;
                 movePoint1X = stalkerInitX;

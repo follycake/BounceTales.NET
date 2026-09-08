@@ -81,7 +81,7 @@ public sealed class TrampolineObject() : GameObject(TYPEID)
             jumper.TorqueY = 0.0f;
             jumper.ReqSkipAccelStretch = true;
             if (jumper.Equals(BounceGame.BounceObj))
-                BounceGame.SetControllerState(BounceGame.Controller.NORMAL);
+                BounceGame.CurrentControllerState = BounceGame.Controller.NORMAL;
         }
     }
 
@@ -90,7 +90,7 @@ public sealed class TrampolineObject() : GameObject(TYPEID)
         LoadObjectMatrixToTarget(out TmpObjMatrix);
         jumper.LocalObjectMatrix.TranslationY = TmpObjMatrix.TranslationY - (LP32.Int32ToLP32((short)GameRuntime.GetCompoundSpriteParamEx(GameRuntime.GetImageIdAfterAnimation(imageId, animFrame), 0)) / ScreenSpaceMatrix.M00 << 16);
         if (jumper.Equals(BounceGame.BounceObj))
-            BounceGame.SetControllerState(BounceGame.Controller.FROZEN);
+            BounceGame.CurrentControllerState = BounceGame.Controller.FROZEN;
     }
 
     public override void UpdatePhysics()

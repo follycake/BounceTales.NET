@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Numerics;
 using BounceTales.Microedition.Lcdui;
 
 namespace BounceTales;
@@ -143,16 +144,14 @@ public sealed class BounceObject : GameObject
     // State - collision
     private int collPointCount;
 
-    private readonly bool[] f41a = new bool[MAX_COLLISION_POINTS];
+    private readonly bool[] collUnknown0 = new bool[MAX_COLLISION_POINTS];
 
-    private readonly int[] collPointsX = new int[MAX_COLLISION_POINTS];
-    private readonly int[] collPointsY = new int[MAX_COLLISION_POINTS];
-
-    private readonly int[] f65l = new int[MAX_COLLISION_POINTS];
-    private readonly int[] f66m = new int[MAX_COLLISION_POINTS];
-
-    private readonly int[] f68n = new int[MAX_COLLISION_POINTS];
-    private readonly int[] f70o = new int[MAX_COLLISION_POINTS];
+    private readonly Vector2I[] collPoints = new Vector2I[MAX_COLLISION_POINTS];
+    private readonly Vector2I[] collUnknown1 = new Vector2I[MAX_COLLISION_POINTS];
+    private readonly Vector2I[] collUnknown2 = new Vector2I[MAX_COLLISION_POINTS];
+    
+    //private readonly int[] f68n = new int[MAX_COLLISION_POINTS];
+    //private readonly int[] f70o = new int[MAX_COLLISION_POINTS];
 
     // State - Super Bounce
     private int superBounceParticleTimer;
@@ -468,10 +467,9 @@ public sealed class BounceObject : GameObject
                 int nearestCollIdx = -1;
                 for (int collIndex = 0; collIndex < collPointCount; collIndex++)
                 {
-                    long distX = collPointsX[collIndex] - RenderCalcMatrix.TranslationX;
-                    long distY = collPointsY[collIndex] - RenderCalcMatrix.TranslationY;
-                    long distance = distX * distX + distY * distY;
-                    if (f41a[collIndex])
+                    Vector2I dist = collPoints[collIndex] - RenderCalcMatrix.Translation;
+                    long distance = dist.X * dist.X + dist.Y * dist.Y;
+                    if (collUnknown0[collIndex])
                         distance = -distance;
                     if (distance > 0x271000000000L)
                         Debug.WriteLine("Sanity check failed! Found collision is too far, distance: " + Math.Sqrt(distance) / 65536.0d);
@@ -484,73 +482,54 @@ public sealed class BounceObject : GameObject
                 if (nearestCollIdx != -1)
                 {
                     float f3 = 1000.0f / GameRuntime.UpdateDelta;
-                    float f4 = collPointsX[nearestCollIdx] * LP32_TO_FP32_MULTIPLIER;
-                    float f5 = collPointsY[nearestCollIdx] * LP32_TO_FP32_MULTIPLIER;
-                    float f6 = f65l[nearestCollIdx] * LP32_TO_FP32_MULTIPLIER;
-                    float f7 = f66m[nearestCollIdx] * LP32_TO_FP32_MULTIPLIER;
-                    float sqrt2 = 1.0f / (float)Math.Sqrt((double)(f6 * f6 + f7 * f7));
-                    float xslope = sqrt2 * f6;
-                    float yslope = sqrt2 * f7;
-                    float f10 = f68n[nearestCollIdx] * LP32_TO_FP32_MULTIPLIER;
-                    float f11 = f70o[nearestCollIdx] * LP32_TO_FP32_MULTIPLIER;
-                    float f12 = f10 * xslope + f11 * yslope;
-                    float f13 = f12 * xslope;
-                    float f14 = f12 * yslope;
-                    if (xslope * f10 + yslope * f11 < 0.0f)
-                    {
-                        f13 = -f13;
-                        f14 = -f14;
-                    }
-                    float f15 = f10 * f3;
-                    float f16 = f11 * f3;
-                    float f17 = (LocalObjectMatrix.TranslationX - collPointsX[nearestCollIdx]) * LP32_TO_FP32_MULTIPLIER;
-                    float f18 = (LocalObjectMatrix.TranslationY - collPointsY[nearestCollIdx]) * LP32_TO_FP32_MULTIPLIER;
-                    float f19 = f10 + f4;
-                    float f20 = f11 + f5;
-                    float f21 = f17 * xslope + f18 * yslope;
-                    float f22 = f21 * xslope;
-                    float f23 = f21 * yslope;
-                    float f24 = f13 + f4 + (f17 - f22 - f22 * RICOCHET_FACTOR[(int)BallForme]) + 0.01f * xslope;
-                    float f25 = f14 + (f18 - f23 - f23 * RICOCHET_FACTOR[(int)BallForme]) + f5 + 0.01f * yslope;
-                    float f26 = CurXVelocity * xslope + CurYVelocity * yslope;
-                    float f27 = f26 * xslope;
-                    float f28 = f26 * yslope;
-                    float f29 = CurXVelocity - f27 - f27 * RICOCHET_FACTOR[(int)BallForme];
-                    float f30 = CurYVelocity - f28 - f28 * RICOCHET_FACTOR[(int)BallForme];
-                    float f31 = f15 * xslope + f16 * yslope;
-                    CurXVelocity = f29 + f31 * xslope;
-                    CurYVelocity = f30 + f31 * yslope;
-                    float f32 = CurXVelocity - f15;
-                    float f33 = CurYVelocity - f16;
-                    float sqrt3 = (float)Math.Sqrt((double)(f32 * f32 + f33 * f33));
-                    float f34 = sqrt3 != 0.0f ? f32 / sqrt3 : 0.0f;
-                    float f35 = sqrt3 != 0.0f ? f33 / sqrt3 : 0.0f;
-                    float f36 = -(0.0f * xslope + BASE_GRAVITY_Y * yslope) * FRICTION[(int)BallForme] * GRAVITY[(int)BallForme];
-                    float f37 = f34 * f36;
-                    float f38 = f35 * f36;
+                    Vector2 point = collPoints[nearestCollIdx] * LP32_TO_FP32_MULTIPLIER;
+                    Vector2 v1 = collUnknown1[nearestCollIdx] * LP32_TO_FP32_MULTIPLIER;
+                    float sqrt2 = 1.0f / v1.Length();
+                    Vector2 slope = sqrt2 * v1;
+                    Vector2 v2 = collUnknown2[nearestCollIdx] * LP32_TO_FP32_MULTIPLIER;
+                    float f12 = v2.X * slope.X + v2.Y * slope.Y;
+                    Vector2 v3 = f12 * slope;
+                    if (slope.X * v2.X + slope.Y * v2.Y < 0.0f)
+                        v3 = -v3;
+                    Vector2 v4 = v2 * f3;
+                    Vector2 v5 = (LocalObjectMatrix.Translation - collPoints[nearestCollIdx]) * LP32_TO_FP32_MULTIPLIER;
+                    Vector2 v6 = v2 + point;
+                    float f21 = v5.X * slope.X + v5.Y * slope.Y;
+                    Vector2 v7 = f21 * slope;
+                    Vector2 v8 = v3 + point + (v5 - v7 - v7 * RICOCHET_FACTOR[(int)BallForme]) + 0.01f * slope;
+                    float f26 = CurXVelocity * slope.X + CurYVelocity * slope.Y;
+                    Vector2 v9 = f26 * slope;
+                    Vector2 v10 = new Vector2(CurXVelocity, CurYVelocity) - v9 - v9 * RICOCHET_FACTOR[(int)BallForme];
+                    float f31 = v4.X * slope.X + v4.Y * slope.Y;
+                    CurXVelocity = v10.X + f31 * slope.X;
+                    CurYVelocity = v10.Y + f31 * slope.Y;
+                    Vector2 v11 = new Vector2(CurXVelocity, CurYVelocity) - v4;
+                    float sqrt3 = v11.Length();
+                    Vector2 v12 = sqrt3 != 0.0f ? v11 / sqrt3 : Vector2.Zero;
+                    float f36 = -(0.0f * slope.X + BASE_GRAVITY_Y * slope.Y) * FRICTION[(int)BallForme] * GRAVITY[(int)BallForme];
+                    Vector2 v13 = v12 * f36;
                     float f39 = f3 * GRAVITY[(int)BallForme];
-                    float f40 = f32 * f39;
-                    float f41 = f39 * f33;
-                    if (f40 * f40 + f41 * f41 < f37 * f37 + f38 * f38)
+                    Vector2 v14 = v11 * f39;
+                    if (v14.LengthSquared() < v13.LengthSquared())
                     {
-                        GravityX -= f40;
-                        GravityY -= f41;
+                        GravityX -= v14.X;
+                        GravityY -= v14.Y;
                     }
                     else
                     {
-                        GravityX -= f37;
-                        GravityY -= f38;
+                        GravityX -= v13.X;
+                        GravityY -= v13.Y;
                     }
-                    TorqueX = TorqueX * (1.0f - torqueFalloff) + torqueFalloff * f32;
-                    TorqueY = TorqueY * (1.0f - torqueFalloff) + torqueFalloff * f33;
+                    TorqueX = TorqueX * (1.0f - torqueFalloff) + torqueFalloff * v11.X;
+                    TorqueY = TorqueY * (1.0f - torqueFalloff) + torqueFalloff * v11.Y;
                     airTimeCounter = 0.0f;
                     IsGrounded = true;
-                    slopeSinAbs = xslope;
-                    slopeCosAbs = yslope;
-                    RenderCalcMatrix.TranslationX = LP32.FP32ToLP32(f19);
-                    RenderCalcMatrix.TranslationY = LP32.FP32ToLP32(f20);
-                    LocalObjectMatrix.TranslationX = LP32.FP32ToLP32(f24);
-                    LocalObjectMatrix.TranslationY = LP32.FP32ToLP32(f25);
+                    slopeSinAbs = slope.X;
+                    slopeCosAbs = slope.Y;
+                    RenderCalcMatrix.TranslationX = LP32.FP32ToLP32(v6.X);
+                    RenderCalcMatrix.TranslationY = LP32.FP32ToLP32(v6.Y);
+                    LocalObjectMatrix.TranslationX = LP32.FP32ToLP32(v8.X);
+                    LocalObjectMatrix.TranslationY = LP32.FP32ToLP32(v8.Y);
                     RecalcAbsObjectMatrix();
                     RenderCalcMatrix.Invert(out InverseRenderCalcMatrix);
                     collPointCount = 0;
@@ -563,50 +542,42 @@ public sealed class BounceObject : GameObject
         if (airTimeCounter > 0.25f) // since this is done both in coll check and physics update, it's actually 1/8th of a second instead of 1/4th
             IsGrounded = false;
     }
-
-    // TODO: collPoints should be a Vector2I[]
+    
     private void RegistCollPoint(GeometryObject geometry, int t, int x, int y, int x2, int y2, bool z)
     {
         Vector2I vectorMulRsl;
+        Vector2I lastVectorMul;
         if (t > 0)
         {
-            collPointsX[collPointCount] = RenderCalcMatrix.TranslationX + (int)(x * (long)t >> 16);
-            collPointsY[collPointCount] = RenderCalcMatrix.TranslationY + (int)(y * (long)t >> 16);
-            f41a[collPointCount] = z;
+            collPoints[collPointCount].X = RenderCalcMatrix.TranslationX + (int)(x * (long)t >> 16);
+            collPoints[collPointCount].Y = RenderCalcMatrix.TranslationY + (int)(y * (long)t >> 16);
+            collUnknown0[collPointCount] = z;
 
             vectorMulRsl = geometry.RenderCalcMatrix.MulDirection(x2, y2);
-            int i6 = vectorMulRsl.X;
-            int i7 = vectorMulRsl.Y;
+            lastVectorMul = vectorMulRsl;
 
             geometry.LoadObjectMatrixToTarget(out TmpObjMatrix);
             vectorMulRsl = TmpObjMatrix.MulDirection(x2, y2);
-            int i8 = vectorMulRsl.X;
-            int i9 = vectorMulRsl.Y;
-            f65l[collPointCount] = (int)(i6 * (long)(LP32.ONE - t) + i8 * (long)t >> 16);
-            f66m[collPointCount] = (int)(i7 * (long)(LP32.ONE - t) + i9 * (long)t >> 16);
+            collUnknown1[collPointCount].X = (int)(lastVectorMul.X * (long)(LP32.ONE - t) + vectorMulRsl.X * (long)t >> 16);
+            collUnknown1[collPointCount].Y = (int)(lastVectorMul.Y * (long)(LP32.ONE - t) + vectorMulRsl.Y * (long)t >> 16);
         }
         else if (t < 0)
             throw new Exception("t < 0, t: " + t);
         else
         {
             vectorMulRsl = geometry.RenderCalcMatrix.MulVector(aabbRay);
-            collPointsX[collPointCount] = vectorMulRsl.X;
-            collPointsY[collPointCount] = vectorMulRsl.Y;
-            f41a[collPointCount] = z;
+            collPoints[collPointCount] = vectorMulRsl;
+            collUnknown0[collPointCount] = z;
             vectorMulRsl = geometry.RenderCalcMatrix.MulVector(x2, y2);
-            f65l[collPointCount] = vectorMulRsl.X;
-            f66m[collPointCount] = vectorMulRsl.Y;
+            collUnknown1[collPointCount] = vectorMulRsl;
         }
 
         vectorMulRsl = geometry.RenderCalcMatrix.MulVector(aabbRay);
-        int i10 = vectorMulRsl.X;
-        int i11 = vectorMulRsl.Y;
+        lastVectorMul = vectorMulRsl;
 
         geometry.LoadObjectMatrixToTarget(out TmpObjMatrix);
         vectorMulRsl = TmpObjMatrix.MulVector(aabbRay);
-        int i12 = (int)(GameRuntime.UpdateDelta * 6553.6f);
-        f68n[collPointCount] = vectorMulRsl.X - i10 + i12 * 0;
-        f70o[collPointCount] = vectorMulRsl.Y - i11 + i12 * 0;
+        collUnknown2[collPointCount] = vectorMulRsl - lastVectorMul;
         collPointCount++;
         if (geometry.Event > -1)
         {
@@ -820,18 +791,12 @@ public sealed class BounceObject : GameObject
                             {
                                 GameRuntime.SetGraphics(orgGraphics);
                                 BounceGame.BallFramebuffer.GetRGB(BounceGame.BallFramebufferRGB);
-                                int rgbIdx = 0;
-                                Color32 key = Color32.FromARGB(0xFF0000FF);
-                                for (int y = 0; y < BounceGame.BallFramebuffer.Height; y++)
+                                for (int rgbIdx = 0; rgbIdx < BounceGame.BallFramebufferRGB.Length; rgbIdx++)
                                 {
-                                    for (int x = 0; x < BounceGame.BallFramebuffer.Width; x++)
-                                    {
-                                        if (BounceGame.BallFramebufferRGB[rgbIdx] == key)
-                                            BounceGame.BallFramebufferRGB[rgbIdx] = Color32.Zero;
-                                        else
-                                            BounceGame.BallFramebufferRGB[rgbIdx] = Color32.Subtract(BounceGame.BallFramebufferRGB[rgbIdx], FadeColor);
-                                        rgbIdx++;
-                                    }
+                                    if (BounceGame.BallFramebufferRGB[rgbIdx] == Color32.Blue)
+                                        BounceGame.BallFramebufferRGB[rgbIdx] = Color32.Zero;
+                                    else
+                                        BounceGame.BallFramebufferRGB[rgbIdx] = Color32.Subtract(BounceGame.BallFramebufferRGB[rgbIdx], FadeColor);
                                 }
                                 GameRuntime.GetGraphicsObj().DrawRGB(BounceGame.BallFramebufferRGB,
                                     ballX - (BounceGame.BallFramebuffer.Width >> 1),
@@ -888,7 +853,7 @@ public sealed class BounceObject : GameObject
                             break;
                         }
                 }
-                if (EyeFrame == 1 || BounceGame.GetPlayerState() == BounceGame.PlayerState.LOSE_UPDATE)
+                if (EyeFrame == 1 || BounceGame.CurrentPlayerState == BounceGame.PlayerState.LOSE_UPDATE)
                     GameRuntime.DrawImageRes(ballX, ballY, 20); // owowowowow
                 else if (EyeFrame == 2 || EyeFrame == 3)
                 {
@@ -906,7 +871,7 @@ public sealed class BounceObject : GameObject
                 }
                 else if (EyeFrame >= 4 && EyeFrame <= 8)
                     GameRuntime.DrawAnimatedImageRes(ballX, ballY, EYE_ANIMATION_IMAGE_IDS[EyeFrame - 4], 0);
-                else if (BounceGame.GetPlayerState() == BounceGame.PlayerState.WIN_UPDATE)
+                else if (BounceGame.CurrentPlayerState == BounceGame.PlayerState.WIN_UPDATE)
                     GameRuntime.DrawAnimatedImageRes(ballX, ballY, 465, 0);
             }
             else
@@ -1042,7 +1007,7 @@ public sealed class BounceObject : GameObject
             airTimeCounter += GameRuntime.UpdateDelta * 0.001f;
             if (airTimeCounter > 0.25f)
                 IsGrounded = false;
-            CurVelocity = (float)Math.Sqrt((double)(CurXVelocity * CurXVelocity + CurYVelocity * CurYVelocity));
+            CurVelocity = (float)Math.Sqrt(CurXVelocity * CurXVelocity + CurYVelocity * CurYVelocity);
             if (CurVelocity > 999.0f) // terminal velocity
             {
                 float invVelocity = 999.0f / CurVelocity;
@@ -1094,7 +1059,7 @@ public sealed class BounceObject : GameObject
                         }
                     }
                 }
-                else if (BounceGame.GetPlayerState() == BounceGame.PlayerState.PLAY && BounceGame.GetControllerState() == BounceGame.Controller.NORMAL && Math.Abs(CurXVelocity) < 40.0f && Math.Abs(CurYVelocity) < 40.0f)
+                else if (BounceGame.CurrentPlayerState == BounceGame.PlayerState.PLAY && BounceGame.CurrentControllerState == BounceGame.Controller.NORMAL && Math.Abs(CurXVelocity) < 40.0f && Math.Abs(CurYVelocity) < 40.0f)
                 {
                     IdleAnimStartTimer -= GameRuntime.UpdateDelta;
                     if (IdleAnimStartTimer <= 0)

@@ -140,18 +140,12 @@ public sealed class SpriteObject() : GameObject(TYPEID)
                 {
                     GameRuntime.SetGraphics(orgGraphics);
                     BounceGame.SpriteFB.GetRGB(BounceGame.SpriteFBRGB);
-                    int rgbIndex = 0;
-                    Color32 key = Color32.FromARGB(0xFF0000FF);
-                    for (int y = 0; y < BounceGame.SpriteFB.Height; y++)
+                    for (int rgbIndex = 0; rgbIndex < BounceGame.SpriteFBRGB.Length; rgbIndex++)
                     {
-                        for (int x = 0; x < BounceGame.SpriteFB.Width; x++)
-                        {
-                            if (BounceGame.SpriteFBRGB[rgbIndex] == key)
-                                BounceGame.SpriteFBRGB[rgbIndex] = Color32.Zero;
-                            else
-                                BounceGame.SpriteFBRGB[rgbIndex] = Color32.Subtract(BounceGame.SpriteFBRGB[rgbIndex], fadeColor);
-                            rgbIndex++;
-                        }
+                        if (BounceGame.SpriteFBRGB[rgbIndex] == Color32.Blue)
+                            BounceGame.SpriteFBRGB[rgbIndex] = Color32.Zero;
+                        else
+                            BounceGame.SpriteFBRGB[rgbIndex] = Color32.Subtract(BounceGame.SpriteFBRGB[rgbIndex], fadeColor);
                     }
                     GameRuntime.GetGraphicsObj().DrawRGB(BounceGame.SpriteFBRGB, posAnim.X - (BounceGame.SpriteFB.Width >> 1), posAnim.Y - BounceGame.SpriteFB.Height, BounceGame.SpriteFB.Width, BounceGame.SpriteFB.Height);
                 }
