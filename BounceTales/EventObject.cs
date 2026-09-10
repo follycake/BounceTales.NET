@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using BounceTales.Microedition.Lcdui;
 
 namespace BounceTales;
 

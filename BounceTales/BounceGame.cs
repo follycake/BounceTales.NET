@@ -195,8 +195,7 @@ public sealed class BounceGame
 
     // State - root
     public static BounceRandom RNG = new();
-
-    // TODO: Save and load game data
+    
     private static short[] levelSaveData = new short[60];
     public static bool IsSuperBounceUnlocked;
 
@@ -1005,7 +1004,6 @@ public sealed class BounceGame
             if (loadingProgressBar > 20)
             {
                 loadingProgressBar = 0;
-                return;
             }
             return;
         }
@@ -1025,14 +1023,12 @@ public sealed class BounceGame
 
     public static bool WasLevelBeaten(LevelID levelId)
     {
-        return true;
         int clearTime = GetLevelClearTime(levelId);
         return clearTime > 0 && clearTime < 9999;
     }
 
     private static bool IsLevelUnlocked(LevelID levelId)
     {
-        return true;
         return GetLevelClearTime(levelId) > 0;
     }
 
@@ -1119,6 +1115,28 @@ public sealed class BounceGame
         if (WasLevelBeaten(FORME_UNLOCK_LEVELS[1]) || CurrentLevel == FORME_UNLOCK_LEVELS[1] && EventObject.EventVars[2] > 0)
             return 2;
         return i;
+    }
+
+    private static void DeserializeSaveData(byte[] save)
+    {
+        for (int saveDataInIdx = 0, saveDataOutIdx = 0; saveDataOutIdx < levelSaveData.Length; saveDataOutIdx++, saveDataInIdx += 2)
+            levelSaveData[saveDataOutIdx] = GameObject.ReadShort(save, saveDataInIdx);
+    }
+    
+    private static void ClearSaveData()
+    {
+        Array.Clear(levelSaveData);
+    }
+    
+    private static void SerializeSaveData()
+    {
+        byte[] saveData = new byte[levelSaveData.Length << 1];
+        for (int i = 0; i < levelSaveData.Length; i++)
+        {
+            saveData[i << 1] = (byte)(levelSaveData[i] >> 8);
+            saveData[(i << 1) + 1] = (byte)levelSaveData[i];
+        }
+        GameRuntime.SaveToRecordStore(saveData);
     }
 
     private static void InitStolenColorData() // inlined in 2.0.25
@@ -1913,7 +1931,7 @@ public sealed class BounceGame
                                 collectionChallengeTrophy = d2;
                             if (GetLevelGlobalHighScore(CurrentLevel) > highScoreBefore)
                                 highScoreBeaten = true;
-                            //SerializeSaveData();
+                            SerializeSaveData();
                             if (bonusChapterNo > 0)
                             {
                                 reqQuitLevelAfterFieldMessage = true;
@@ -2101,7 +2119,7 @@ public sealed class BounceGame
                 UnloadLevel();
                 if (GameRuntime.IsMusicEnabled())
                     GameRuntime.LoadResidentResSet(0);
-                /*byte[] savedData = GameRuntime.LoadFromRecordStore("game");
+                byte[] savedData = GameRuntime.LoadFromRecordStore();
                 if (savedData != null)
                 {
                     DeserializeSaveData(savedData);
@@ -2117,9 +2135,9 @@ public sealed class BounceGame
                         }
                     }
                 }
-                else*/
+                else
                 {
-                    //ClearSaveData();
+                    ClearSaveData();
                     UnlockLevel(0);
                 }
                 Debug.WriteLine("Saved data loaded");
@@ -2228,7 +2246,7 @@ public sealed class BounceGame
                 }
                 UnlockLevel(0);
                 selectedLevelId = 0;
-                //SerializeSaveData();
+                SerializeSaveData();
                 isLevelActive = false;
                 SetUI(GameScene.MENU_LEVEL_SELECT);
                 return 0;
@@ -2505,21 +2523,21 @@ public sealed class BounceGame
     {
         if (drawUI != null)
         {
-            UILayout ui = drawUI;
-            if (ui.UIID == GameScene.MENU_LEVEL_SELECT)
+            UILayout uiLayout = drawUI;
+            if (uiLayout.UIID == GameScene.MENU_LEVEL_SELECT)
             {
                 // Stuff...
                 switch (keyCode)
                 {
                     case KeyCode.LEFT:
-                        CycleLevelSelectLeft(ui, true);
+                        CycleLevelSelectLeft(uiLayout, true);
                         break;
                     case KeyCode.RIGHT:
-                        CycleLevelSelectRight(ui, true);
+                        CycleLevelSelectRight(uiLayout, true);
                         break;
                 }
             }
-            ui.HandleKeyCode(keyCode);
+            uiLayout.HandleKeyCode(keyCode);
         }
         else if (gameMainState == 2)
             UpdateLoadingScreen();

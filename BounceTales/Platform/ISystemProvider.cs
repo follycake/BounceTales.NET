@@ -7,6 +7,8 @@ public interface ISystemProvider : IProvider
 {
     string Locale { get; }
     long CurrentTimeMillis();
+    byte[] LoadGameData();
+    void SaveGameData(byte[] saveData);
     Stream GetResourceAsStream(string path);
 }
 
@@ -14,6 +16,7 @@ public class DefaultSystemProvider : ISystemProvider
 {
     public string DataPath { get; set; } = "data/";
     public string JarPath { get; set; } = "game.jar";
+    public string SavePath { get; set; } = "save.bin";
     public string Locale { get; set; } = "en-US";
     private Stopwatch _stopwatch;
 
@@ -25,6 +28,19 @@ public class DefaultSystemProvider : ISystemProvider
     public long CurrentTimeMillis()
     {
         return _stopwatch.ElapsedMilliseconds;
+    }
+
+    public byte[] LoadGameData()
+    {
+        return File.Exists(SavePath) ? File.ReadAllBytes(SavePath) : null;
+    }
+
+    public void SaveGameData(byte[] saveData)
+    {
+        string dir = Path.GetDirectoryName(SavePath);
+        if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
+            Directory.CreateDirectory(dir);
+        File.WriteAllBytes(SavePath, saveData);
     }
 
     public Stream GetResourceAsStream(string path)

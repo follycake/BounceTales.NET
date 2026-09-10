@@ -75,7 +75,7 @@ public sealed class TextLabel
                     i++;
                 }
             }
-            if (!int.TryParse(str[0..gapIndices[0]], out lineCount))
+            if (!int.TryParse(str[..gapIndices[0]], out lineCount))
                 lineCount = 0;
             if (!int.TryParse(str[(gapIndices[0] + 1)..gapIndices[1]], out f10h))
                 f10h = 0;
@@ -103,11 +103,11 @@ public sealed class TextLabel
         int i7;
         int i8;
         //int i9;
-        int i10 = this.lineCount;
+        int i10 = lineCount;
         GameRuntime.SetTextStyle(fontId, shadowType);
         GameRuntime.SetTextColor(0, textColor);
         GameRuntime.SetTextColor(1, shadowColor);
-        int lineCount = i10 > this.lineCount ? this.lineCount : i10;
+        int localLineCount = i10 > lineCount ? lineCount : i10;
         if ((flags & 48) == 32) // icon centered in label
         {
             iconXOffset = TextBlockWidth / 2;
@@ -182,7 +182,7 @@ public sealed class TextLabel
             startY += iconHeight;
         int yoffs = GameRuntime.GetFontHeight(fontId) * 0;
         int lineIndex = 0;
-        while (lineIndex < lineCount)
+        while (lineIndex < localLineCount)
         {
             if (lines[lineIndex + 1] != null)
             {

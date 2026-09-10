@@ -75,13 +75,13 @@ public sealed class WaterObject() : GameObject(TYPEID)
         {
             int maxSplashVerts = areaWidth * 50 / 100;
             splashYOffsets = new sbyte[maxSplashVerts];
-            this.maxSplashX = maxSplashVerts << 12;
+            maxSplashX = maxSplashVerts << 12;
             ambientParticleTimer = 0;
             vertexCount = maxSplashVerts + 2;
             for (int i = 0; i < maxSplashVerts; i++)
                 splashYOffsets[i] = 0;
-            int maxSplashX = maxSplashVerts / 20;
-            splashLimit = (maxSplashX << 1) + 2;
+            int localMaxSplashX = maxSplashVerts / 20;
+            splashLimit = (localMaxSplashX << 1) + 2;
             splashIntensity = new int[splashLimit];
             splashSpread = new int[splashLimit];
             splashDirections = new sbyte[splashLimit];
@@ -90,9 +90,9 @@ public sealed class WaterObject() : GameObject(TYPEID)
             splashXPos = new int[splashLimit];
             for (int i = 0; i < splashLimit; i++)
                 splashIntensity[i] = 0;
-            for (int i = 2; i <= maxSplashX - 2; i++)
+            for (int i = 2; i <= localMaxSplashX - 2; i++)
             {
-                int length = (splashYOffsets.Length - 1 << 12) * i / maxSplashX;
+                int length = (splashYOffsets.Length - 1 << 12) * i / localMaxSplashX;
                 int intensity1 = (Math.Abs(BounceGame.RNG.NextInt() % 2) + 24 << 12 << 1) / 9;
                 InsertSplash(intensity1, intensity1 * 3, -1, (Math.Abs(BounceGame.RNG.NextInt() % 2) + 10 << 12) / 3, length, 1);
                 int intensity2 = (Math.Abs(BounceGame.RNG.NextInt() % 2) + 24 << 12 << 1) / 9;

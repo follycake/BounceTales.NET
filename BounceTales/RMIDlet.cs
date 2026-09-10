@@ -1,5 +1,4 @@
-﻿using BounceTales.Microedition;
-using BounceTales.Platform;
+﻿using BounceTales.Platform;
 using BounceTales.Platform.Software;
 
 namespace BounceTales;

@@ -41,7 +41,8 @@ public partial class Game : Node
         _midlet.System = new DefaultSystemProvider
         {
             JarPath = ProjectSettings.GlobalizePath("user://game.jar"),
-            DataPath = ProjectSettings.GlobalizePath("user://data/")
+            DataPath = ProjectSettings.GlobalizePath("user://data/"),
+            SavePath = ProjectSettings.GlobalizePath("user://save.bin")
         };
         _graphicsProvider = new GodotGraphicsProvider(this);
         _midlet.Graphics = _graphicsProvider;

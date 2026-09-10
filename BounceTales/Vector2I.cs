@@ -1,4 +1,6 @@
-﻿namespace BounceTales;
+﻿using System.Numerics;
+
+namespace BounceTales;
 
 public struct Vector2I(int x, int y) : IEquatable<Vector2I>
 {
@@ -40,6 +42,6 @@ public struct Vector2I(int x, int y) : IEquatable<Vector2I>
     public static Vector2I operator -(Vector2I a, Vector2I b) => new(a.X - b.X, a.Y - b.Y);
     public static Vector2I operator *(Vector2I a, int b) => new(a.X * b, a.Y * b);
 
-    public static System.Numerics.Vector2 operator *(Vector2I a, float b) => new(a.X * b, a.Y * b);
-    public static implicit operator System.Numerics.Vector2(Vector2I a) => new(a.X, a.Y);
+    public static Vector2 operator *(Vector2I a, float b) => new(a.X * b, a.Y * b);
+    public static implicit operator Vector2(Vector2I a) => new(a.X, a.Y);
 }

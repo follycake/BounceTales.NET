@@ -743,6 +743,38 @@ public sealed class GameRuntime : IResourceHandler
             imageResources[d] = image;
     }
 
+    public static byte[] LoadFromRecordStore()
+    {
+        try
+        {
+            byte[] record = MidLet.System.LoadGameData();
+            byte[] o = new byte[record.Length - 2];
+            Array.Copy(record, 2, o, 0, o.Length);
+            return o;
+        }
+        catch (Exception e)
+        {
+            Debug.WriteLine(e);
+            return null;
+        }
+    }
+
+    public static void SaveToRecordStore(byte[] rawData)
+    {
+        try
+        {
+            byte[] taggedData = new byte[rawData.Length + 2];
+            taggedData[0] = 1;
+            taggedData[1] = 2;
+            Array.Copy(rawData, 0, taggedData, 2, rawData.Length);
+            MidLet.System.SaveGameData(taggedData);
+        }
+        catch (Exception e)
+        {
+            Debug.WriteLine(e);
+        }
+    }
+
     public static void StartLoadScene(GameScene sceneId)
     {
         if (sceneLoadQueueSize == 40)
