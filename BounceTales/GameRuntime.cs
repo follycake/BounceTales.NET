@@ -748,6 +748,8 @@ public sealed class GameRuntime : IResourceHandler
         try
         {
             byte[] record = MidLet.System.LoadGameData();
+            if (record == null)
+                return null;
             byte[] o = new byte[record.Length - 2];
             Array.Copy(record, 2, o, 0, o.Length);
             return o;

@@ -25,6 +25,10 @@ public sealed class BounceGame
 
     public static short[] SIN_COS_TABLE = new short[360];
 
+    private static readonly KeyCode[] CHEAT_COMBO_ALL_UNLOCK = [KeyCode.NUM0, KeyCode.NUM0, KeyCode.NUM0];
+    private static readonly KeyCode[] CHEAT_COMBO_ALL_COMPLETE = [KeyCode.NUM1, KeyCode.NUM1, KeyCode.NUM1];
+    private static readonly KeyCode[] CHEAT_COMBO_DEBUG_SCENE_CALL = [KeyCode.NUM3, KeyCode.NUM1, KeyCode.NUM3];
+    
     public const int CANNON_LEVEL_INDEX = (int)LevelID.LEVEL_IDX_MAX;
 
     private static readonly short[] LEVEL_RESIDS =
@@ -196,7 +200,7 @@ public sealed class BounceGame
     // State - root
     public static BounceRandom RNG = new();
     
-    private static short[] levelSaveData = new short[60];
+    private static readonly short[] levelSaveData = new short[60];
     public static bool IsSuperBounceUnlocked;
 
     private static int totalGameTime;
@@ -204,6 +208,9 @@ public sealed class BounceGame
 
     private static bool reqQuit; // added in 2.0.25 for more game URL action
     private static bool reqPlayTitleMusic;
+
+    private static bool EnableCheats => GameRuntime.MidLet.System.EnableCheats;
+    private static byte cheatComboIndex;
 
     private static int renderClipWidth = GameRuntime.CurrentWidth;
     private static int renderClipHeight = GameRuntime.CurrentHeight;
@@ -1002,9 +1009,7 @@ public sealed class BounceGame
             graphics.FillRect((GameRuntime.CurrentWidth - 60) / 2 + 1, (GameRuntime.CurrentHeight - 10) / 2 + 1, loadingProgressBar * 60 / 20 - 2, 8);
             loadingProgressBar++;
             if (loadingProgressBar > 20)
-            {
                 loadingProgressBar = 0;
-            }
             return;
         }
         graphics.SetColor(0xFFFFFF);
@@ -2443,10 +2448,10 @@ public sealed class BounceGame
         GameObject.MakeObjectLinks(levelObjects);
 
         // BUGFIX: BounceObject physics only work if the object isn't parented to anything
-        for (int i = 0; i < levelObjects.Length; i++)
+        foreach (GameObject obj in levelObjects)
         {
-            if (levelObjects[i].GetObjType() == BounceObject.TYPEID)
-                levelObjects[i].MakeIndependent();
+            if (obj.GetObjType() == BounceObject.TYPEID)
+                obj.MakeIndependent();
         }
 
         RootLevelObj = levelObjects[0];
@@ -2518,6 +2523,9 @@ public sealed class BounceGame
         BounceObj.EyeFrame = 0;
         BounceObj.IdleAnimStartTimer = 3000;
     }
+    
+    private int debugSceneCallIdx = -1;
+    private int debugSceneCallBuffer;
 
     public void HandleKeyPress(KeyCode keyCode)
     {
@@ -2526,7 +2534,73 @@ public sealed class BounceGame
             UILayout uiLayout = drawUI;
             if (uiLayout.UIID == GameScene.MENU_LEVEL_SELECT)
             {
-                // Stuff...
+                if (debugSceneCallIdx != -1)
+                {
+					int num = keyCode - KeyCode.NUM0;
+					if (num >= 0 && num <= 9)
+                    {
+						debugSceneCallBuffer *= 10;
+						debugSceneCallBuffer += num;
+					}
+                    else if (keyCode == KeyCode.SOFTKEY_MIDDLE)
+                    {
+						debugSceneCallIdx = -1;
+						Debug.WriteLine("Calling debug scene " + debugSceneCallBuffer);
+						GameRuntime.InitHID(GameRuntime.ControlMode.GAME);
+						ChangeScene((GameScene)debugSceneCallBuffer);
+					}
+                    else
+                    {
+						GameRuntime.InitHID(GameRuntime.ControlMode.GAME);
+						debugSceneCallIdx = -1;
+					}
+					return;
+				}
+
+                if (EnableCheats)
+                {
+                    if (CHEAT_COMBO_ALL_UNLOCK[cheatComboIndex] == keyCode)
+                    {
+                        if (++cheatComboIndex == CHEAT_COMBO_ALL_UNLOCK.Length)
+                        {
+                            Debug.WriteLine("Cheat activated: unlock all levels");
+                            for (LevelID levelId = 0; levelId < LevelID.LEVEL_IDX_MAX; levelId++)
+                                DebugLevelUnlock(levelId);
+                            cheatComboIndex = 0;
+                            UpdateLevelStartSoftkeyByUnlock(ui);
+                            SerializeSaveData();
+                        }
+                    }
+                    else if (CHEAT_COMBO_ALL_COMPLETE[cheatComboIndex] == keyCode)
+                    {
+                        if (++cheatComboIndex == CHEAT_COMBO_ALL_COMPLETE.Length)
+                        {
+                            Debug.WriteLine("Cheat activated: complete all levels");
+                            for (LevelID levelId = 0; levelId < LevelID.LEVEL_IDX_MAX; levelId++)
+                            {
+                                DebugLevelUnlock(levelId);
+                                UpdateLevelStats(levelId, 30, 1, 9999);
+                            }
+                            cheatComboIndex = 0;
+                            UpdateLevelStartSoftkeyByUnlock(ui);
+                            SerializeSaveData();
+                        }
+                    }
+                    else if (CHEAT_COMBO_DEBUG_SCENE_CALL[cheatComboIndex] == keyCode)
+                    {
+                        if (++cheatComboIndex == CHEAT_COMBO_DEBUG_SCENE_CALL.Length)
+                        {
+                            Debug.WriteLine("Cheat activated: debug scene call");
+                            debugSceneCallIdx = 0;
+                            debugSceneCallBuffer = 0;
+                            cheatComboIndex = 0;
+                            GameRuntime.InitHID(GameRuntime.ControlMode.RAW);
+                        }
+                    }
+                    else
+                        cheatComboIndex = 0;
+                }
+
                 switch (keyCode)
                 {
                     case KeyCode.LEFT:
@@ -2543,7 +2617,21 @@ public sealed class BounceGame
             UpdateLoadingScreen();
         else if (gameMainState == 4)
         {
-            // Stuff...
+            if (EnableCheats)
+            {
+                // automatically win the level
+                if (CHEAT_COMBO_ALL_UNLOCK[cheatComboIndex] == keyCode && (CurrentControllerState == Controller.NORMAL || CurrentControllerState == Controller.CANNON))
+                {
+                    if (++cheatComboIndex == CHEAT_COMBO_ALL_UNLOCK.Length)
+                    {
+                        CurrentPlayerState = PlayerState.WIN;
+                        cheatComboIndex = 0;
+                        EggCount = 30;
+                    }
+                }
+                else
+                    cheatComboIndex = 0;
+            }
             switch (keyCode)
             {
                 case KeyCode.SOFTKEY_RIGHT:

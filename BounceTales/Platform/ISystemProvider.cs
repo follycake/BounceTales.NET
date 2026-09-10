@@ -6,6 +6,7 @@ namespace BounceTales.Platform;
 public interface ISystemProvider : IProvider
 {
     string Locale { get; }
+    bool EnableCheats { get; }
     long CurrentTimeMillis();
     byte[] LoadGameData();
     void SaveGameData(byte[] saveData);
@@ -18,6 +19,8 @@ public class DefaultSystemProvider : ISystemProvider
     public string JarPath { get; set; } = "game.jar";
     public string SavePath { get; set; } = "save.bin";
     public string Locale { get; set; } = "en-US";
+    public bool EnableCheats { get; set; }
+
     private Stopwatch _stopwatch;
 
     public void Initialize()

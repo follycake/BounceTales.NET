@@ -32,7 +32,18 @@ internal static class Program
         [KeyboardKey.Escape] = KeyCode.SOFTKEY_RIGHT,
 
         [KeyboardKey.Q] = KeyCode.STAR,
-        [KeyboardKey.E] = KeyCode.POUND
+        [KeyboardKey.E] = KeyCode.POUND,
+        
+        [KeyboardKey.Zero] = KeyCode.NUM0,
+        [KeyboardKey.One] = KeyCode.NUM1,
+        [KeyboardKey.Two] = KeyCode.NUM2,
+        [KeyboardKey.Three] = KeyCode.NUM3,
+        [KeyboardKey.Four] = KeyCode.NUM4,
+        [KeyboardKey.Five] = KeyCode.NUM5,
+        [KeyboardKey.Six] = KeyCode.NUM6,
+        [KeyboardKey.Seven] = KeyCode.NUM7,
+        [KeyboardKey.Eight] = KeyCode.NUM8,
+        [KeyboardKey.Nine] = KeyCode.NUM9
     };
     
     private static void Main()
