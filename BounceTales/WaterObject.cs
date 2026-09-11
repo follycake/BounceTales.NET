@@ -254,8 +254,8 @@ public sealed class WaterObject() : GameObject(TYPEID)
                         p2.X = min.X + (i * length >> 10);
                         p2.Y = min.Y - (splashYOffsets[i] * length >> 10);
                     }
+                    
                     Vector2I p3 = new(p2.X, max.Y);
-
                     graphics.FillQuad(p0, p1, p2, p3, Color32.FromARGB(BounceGame.GetStolenColorIfApplicable(color)));
 
                     p0 = p3;
@@ -263,20 +263,7 @@ public sealed class WaterObject() : GameObject(TYPEID)
                 }
             }
             else
-            {
-                /*int[] polyX = GeometryObject.TEMP_QUAD_XS;
-                int[] polyY = GeometryObject.TEMP_QUAD_YS;
-                polyX[0] = minx;
-                polyY[0] = miny;
-                polyX[1] = maxx;
-                polyY[1] = miny;
-                polyX[2] = maxx;
-                polyY[2] = maxy;
-                polyX[3] = minx;
-                polyY[3] = maxy;
-                directGraphics.FillPolygon(polyX, polyY, 4, BounceGame.GetStolenColorIfApplicable(color));*/
-                graphics.FillRect(min.X, min.Y, max.X - min.X, max.Y - min.Y);
-            }
+                graphics.FillRect(min.X, min.Y, max.X - min.X + 1, max.Y - min.Y + 1, Color32.FromARGB(BounceGame.GetStolenColorIfApplicable(color)));
         }
         else if (!BounceGame.LevelPaused)
         {
