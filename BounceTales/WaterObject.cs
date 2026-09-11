@@ -33,7 +33,6 @@ public sealed class WaterObject() : GameObject(TYPEID)
     private short areaWidth;
 
     // State - splashes
-    private int splashTimer;
     private sbyte[] splashYOffsets;
     private int splashLimit;
 
@@ -64,10 +63,7 @@ public sealed class WaterObject() : GameObject(TYPEID)
         int colorAGB = 0x44000000 | (data[dataPos++] & 255) << 16 | (data[dataPos++] & 255) << 8;
         int red = data[dataPos++] & 255;
         color = colorAGB | red;
-        if (red == 16)
-            region = Region.DEPTHS;
-        else
-            region = Region.SURFACE;
+        region = red == 16 ? Region.DEPTHS : Region.SURFACE;
         if (color != COLOR_AIR_TUNNEL)
             color = COLOR_WATER;
         areaWidth = (short)(area.MaxX - area.MinX);
@@ -113,13 +109,8 @@ public sealed class WaterObject() : GameObject(TYPEID)
 
     public override void Draw(Graphics graphics, Matrix rootMatrix)
     {
-        int airEmitDir;
-        int airYMax;
-        int airXMin;
-        int airYMin;
-        int airXMax;
-        int baseSplash;
         int delta = GameRuntime.UpdateDelta * GameRuntime.GetUpdatesPerDraw();
+        Matrix tmpObjMatrix;
         if (IsWater())
         {
             if (!BounceGame.LevelPaused)
@@ -127,11 +118,11 @@ public sealed class WaterObject() : GameObject(TYPEID)
                 ambientParticleTimer += delta;
                 if (ambientParticleTimer > 150)
                 {
-                    LoadObjectMatrixToTarget(out TmpObjMatrix);
-                    int swimPosXMin = TmpObjMatrix.TranslationX + (area.MinX << 16);
-                    int swimPosXMax = TmpObjMatrix.TranslationX + (area.MaxX << 16);
-                    int swimPosYMin = TmpObjMatrix.TranslationY + (area.MaxY << 16);
-                    BounceGame.BubbleParticle.BubblePopY = TmpObjMatrix.TranslationY + (area.MinY << 16);
+                    LoadObjectMatrixToTarget(out tmpObjMatrix);
+                    int swimPosXMin = tmpObjMatrix.TranslationX + (area.MinX << 16);
+                    int swimPosXMax = tmpObjMatrix.TranslationX + (area.MaxX << 16);
+                    int swimPosYMin = tmpObjMatrix.TranslationY + (area.MaxY << 16);
+                    BounceGame.BubbleParticle.BubblePopY = tmpObjMatrix.TranslationY + (area.MinY << 16);
                     BounceGame.BubbleParticle.MaxVelocityY = 60000;
                     BounceGame.BubbleParticle.EmitIndependentBursts(1, swimPosXMin, swimPosYMin, swimPosXMax, swimPosYMin, 0, 0, 0, 0, 4000, 666);
                     ambientParticleTimer = 0;
@@ -139,7 +130,6 @@ public sealed class WaterObject() : GameObject(TYPEID)
             }
             if (!BounceGame.LevelPaused && region == Region.SURFACE)
             {
-                splashTimer += delta;
                 Array.Fill<sbyte>(splashYOffsets, 0);
                 for (int splashIdx = 0; splashIdx < splashLimit; splashIdx++)
                 {
@@ -172,6 +162,7 @@ public sealed class WaterObject() : GameObject(TYPEID)
                                 splashSpeeds[splashIdx] -= (delta << 1) * 4 >> 3;
                             }
                         }
+                        int baseSplash;
                         if (splashIntensity[splashIdx] > 0 && (baseSplash = splashXPos[splashIdx] >> 12) >= 0 && baseSplash < splashYOffsets.Length)
                         {
                             splashYOffsets[baseSplash] = (sbyte)(splashYOffsets[baseSplash] + (splashIntensity[splashIdx] >> 12));
@@ -196,10 +187,10 @@ public sealed class WaterObject() : GameObject(TYPEID)
                         splashYOffsets[i]--;
                 }
             }
-            LoadObjectMatrixToTarget(out TmpObjMatrix);
-            Matrix.MultMatrices(rootMatrix, TmpObjMatrix, out Matrix.Temp);
-            Vector2I min = Matrix.Temp.MulVector(area.Min << 16) >> 16;
-            Vector2I max = Matrix.Temp.MulVector(area.Max << 16) >> 16;
+            LoadObjectMatrixToTarget(out tmpObjMatrix);
+            Matrix.MultMatrices(rootMatrix, tmpObjMatrix, out Matrix temp);
+            Vector2I min = temp.MulVector(area.Min << 16) >> 16;
+            Vector2I max = temp.MulVector(area.Max << 16) >> 16;
             int width = max.X - min.X;
             if (region == Region.SURFACE)
             {
@@ -242,7 +233,6 @@ public sealed class WaterObject() : GameObject(TYPEID)
                 int length = (width << 8 << 10) / splashYOffsets.Length >> 8;
                 Vector2I p0 = new(min.X, max.Y);
                 Vector2I p1 = min;
-                Vector2I p2, p3;
 
                 for (int i = 0; i < splashYOffsets.Length; i++)
                 {
@@ -253,6 +243,7 @@ public sealed class WaterObject() : GameObject(TYPEID)
                             i++;
                     }
 
+                    Vector2I p2;
                     if (i == splashYOffsets.Length - 1)
                     {
                         p2.X = max.X + 1;
@@ -263,7 +254,7 @@ public sealed class WaterObject() : GameObject(TYPEID)
                         p2.X = min.X + (i * length >> 10);
                         p2.Y = min.Y - (splashYOffsets[i] * length >> 10);
                     }
-                    p3 = new(p2.X, max.Y);
+                    Vector2I p3 = new(p2.X, max.Y);
 
                     graphics.FillQuad(p0, p1, p2, p3, Color32.FromARGB(BounceGame.GetStolenColorIfApplicable(color)));
 
@@ -293,11 +284,11 @@ public sealed class WaterObject() : GameObject(TYPEID)
             ambientParticleTimer += delta;
             if (ambientParticleTimer > 150)
             {
-                LoadObjectMatrixToTarget(out TmpObjMatrix);
-                int leftX = TmpObjMatrix.TranslationX + (area.MinX << 16);
-                int rightX = TmpObjMatrix.TranslationX + (area.MaxX << 16);
-                int topY = TmpObjMatrix.TranslationY + (area.MaxY << 16);
-                int bottomY = TmpObjMatrix.TranslationY + (area.MinY << 16);
+                LoadObjectMatrixToTarget(out tmpObjMatrix);
+                int leftX = tmpObjMatrix.TranslationX + (area.MinX << 16);
+                int rightX = tmpObjMatrix.TranslationX + (area.MaxX << 16);
+                int topY = tmpObjMatrix.TranslationY + (area.MaxY << 16);
+                int bottomY = tmpObjMatrix.TranslationY + (area.MinY << 16);
                 int horizontalGravity = Math.Abs(gravityXLeft);
                 if (Math.Abs(gravityXRight) > horizontalGravity)
                     horizontalGravity = Math.Abs(gravityXRight);
@@ -305,6 +296,11 @@ public sealed class WaterObject() : GameObject(TYPEID)
                 if (Math.Abs(gravityYBottom) > verticalGravity)
                     verticalGravity = Math.Abs(gravityYBottom);
                 int dispBase;
+                int airEmitDir;
+                int airYMax;
+                int airXMin;
+                int airYMin;
+                int airXMax;
                 if (gravityXLeft + gravityXRight > 0)
                 {
                     dispBase = horizontalGravity << 7;
@@ -369,13 +365,13 @@ public sealed class WaterObject() : GameObject(TYPEID)
         }
     }
 
-    public void OnBounceSurfaceContact(int xposWeight, float splashIntensity, int radius, BounceObject bounce)
+    public void OnBounceSurfaceContact(int xposWeight, float intensity, int radius, BounceObject bounce)
     {
         if (IsWater())
         {
             bounceBubbleTimer = 0;
-            splashIntensity = Math.Clamp(splashIntensity, -230.0f, 230.0f);
-            int intensityAbs = (int)Math.Abs(splashIntensity);
+            intensity = Math.Clamp(intensity, -230.0f, 230.0f);
+            int intensityAbs = (int)Math.Abs(intensity);
             if (region == 0)
             {
                 int length = (int)((splashYOffsets.Length - 1 << 12) * (long)xposWeight >> 16);
@@ -388,8 +384,8 @@ public sealed class WaterObject() : GameObject(TYPEID)
             bounce.TorqueY /= 3.0f;
             if (region == Region.SURFACE)
             {
-                LoadObjectMatrixToTarget(out TmpObjMatrix);
-                int splashY = TmpObjMatrix.TranslationY + (area.MinY << 16);
+                LoadObjectMatrixToTarget(out Matrix tmpObjMatrix);
+                int splashY = tmpObjMatrix.TranslationY + (area.MinY << 16);
                 int splashRange = intensityAbs * 500 / 230;
                 int splashParticleCount = intensityAbs * 6 / 230;
                 int splashLifespan = intensityAbs * 800 / 230;
@@ -501,8 +497,8 @@ public sealed class WaterObject() : GameObject(TYPEID)
 
                 if (bounceBubbleTimer > 150)
                 {
-                    LoadObjectMatrixToTarget(out TmpObjMatrix);
-                    BounceGame.BubbleParticle.BubblePopY = TmpObjMatrix.TranslationY + (area.MinY << 16);
+                    LoadObjectMatrixToTarget(out Matrix tmpObjMatrix);
+                    BounceGame.BubbleParticle.BubblePopY = tmpObjMatrix.TranslationY + (area.MinY << 16);
                     BounceGame.BubbleParticle.MaxVelocityY = 60000;
                     BounceGame.BubbleParticle.EmitTrail(EventObject.EventVars[4] / 60, bounce.LocalObjectMatrix.TranslationX, bounce.LocalObjectMatrix.TranslationY, BounceObject.BALL_DIMENS[0] << 15, 0, 0, 0, 0, 4000, 666);
                     bounceBubbleTimer = 0;

@@ -32,11 +32,7 @@ public class GameObject
     private static int cameraTimer;
 
     // Global state - matrices
-    public static Matrix TmpObjMatrix = Matrix.Identity; // TODO: Remove
     public static Matrix ScreenSpaceMatrix = Matrix.Identity;
-
-    private static Matrix rootMatrix = Matrix.Identity;
-    private static Matrix inverseRootMatrix = Matrix.Identity;
 
     // Global state - render queue
     private static int renderObjCount;
@@ -174,9 +170,9 @@ public class GameObject
         return srcPos;
     }
 
-    public static int DecomposeBytesToShorts(short[] target, int count, int baseVal, int bitBuffer, byte[] src, int srcPos, int bitsPerShort)
+    public static int DecomposeBytesToShorts(short[] target, int count, int baseVal, byte[] src, int srcPos, int bitsPerShort)
     {
-        bitBuffer = 0;
+        int bitBuffer = 0;
         int bufIdx = 0;
         int index = 0;
         int bit = 1 << bitsPerShort - 1;
@@ -296,14 +292,14 @@ public class GameObject
 
     public static void DrawSceneTree(GameObject root, Graphics g)
     {
-        GetWorldMatrix(out rootMatrix);
-        rootMatrix.Invert(out inverseRootMatrix);
+        GetWorldMatrix(out Matrix rootMatrix);
+        rootMatrix.Invert(out Matrix inverseRootMatrix);
         GetScreenWorldAABB(inverseRootMatrix, out screenAABB);
         renderObjCount = 0;
         GameObject currentObj = root;
         while (currentObj != null)
         {
-            if (!(currentObj.objType == ParticleObject.TYPEID) && !currentObj.IsInAABB(screenAABB))
+            if (currentObj.objType != ParticleObject.TYPEID && !currentObj.IsInAABB(screenAABB))
                 currentObj = currentObj.GetNextNode(root);
             else if ((currentObj.Flags & ObjectFlags.NODRAW) != 0) // nondraw
                 currentObj = currentObj.GetNextNodeDescendToChildren(root);
@@ -339,11 +335,11 @@ public class GameObject
         int i;
         int i2;
         int delta = GameRuntime.UpdateDelta;
-        CameraTarget.LoadObjectMatrixToTarget(out TmpObjMatrix);
+        CameraTarget.LoadObjectMatrixToTarget(out Matrix tmpObjMatrix);
         if (delta != 0)
         {
-            i2 = (TmpObjMatrix.TranslationX - CameraTarget.RenderCalcMatrix.TranslationX) / delta;
-            i = (TmpObjMatrix.TranslationY - CameraTarget.RenderCalcMatrix.TranslationY) / delta;
+            i2 = (tmpObjMatrix.TranslationX - CameraTarget.RenderCalcMatrix.TranslationX) / delta;
+            i = (tmpObjMatrix.TranslationY - CameraTarget.RenderCalcMatrix.TranslationY) / delta;
         }
         else
         {
@@ -353,15 +349,15 @@ public class GameObject
 
         int i5 = i2 << 7;
         int i6 = -i << 7;
-        int i7 = TmpObjMatrix.TranslationX;
-        int i8 = TmpObjMatrix.TranslationY;
+        int i7 = tmpObjMatrix.TranslationX;
+        int i8 = tmpObjMatrix.TranslationY;
 
-        ScreenSpaceMatrix.Invert(out Matrix.Temp);
-        Vector2I vectorMulRsl = Matrix.Temp.MulDirection(0, -GameRuntime.CurrentHeight / 5 << 16);
+        ScreenSpaceMatrix.Invert(out Matrix temp);
+        Vector2I vectorMulRsl = temp.MulDirection(0, -GameRuntime.CurrentHeight / 5 << 16);
         int i9 = vectorMulRsl.X;
         int i10 = vectorMulRsl.Y;
 
-        vectorMulRsl = Matrix.Temp.MulDirection(i5, i6);
+        vectorMulRsl = temp.MulDirection(i5, i6);
         int cameraTx = vectorMulRsl.X + i5 + i7 + i9;
         int cameraTy = vectorMulRsl.Y + i6 + i8 + i10;
         if (instant)
@@ -441,19 +437,18 @@ public class GameObject
     // TODO: This code repeats a bunch. Make a Matrix.MulAABB() or AABB.Transform() method for this.
     public static void MakeBoundsAbsolute(ref AABB dest, Matrix matrix)
     {
-        TmpObjMatrix = matrix;
-        Vector2I objMin = TmpObjMatrix.MulVector(dest.Min);
+        Vector2I objMin = matrix.MulVector(dest.Min);
         Vector2I objMax = objMin;
 
-        Vector2I temp = TmpObjMatrix.MulVector(dest.MinX, dest.MaxY);
+        Vector2I temp = matrix.MulVector(dest.MinX, dest.MaxY);
         objMin = Vector2I.Min(objMin, temp);
         objMax = Vector2I.Max(objMax, temp);
 
-        temp = TmpObjMatrix.MulVector(dest.Max);
+        temp = matrix.MulVector(dest.Max);
         objMin = Vector2I.Min(objMin, temp);
         objMax = Vector2I.Max(objMax, temp);
 
-        temp = TmpObjMatrix.MulVector(dest.MaxX, dest.MinY);
+        temp = matrix.MulVector(dest.MaxX, dest.MinY);
         objMin = Vector2I.Min(objMin, temp);
         objMax = Vector2I.Max(objMax, temp);
         dest = new AABB(objMin, objMax);
@@ -468,15 +463,15 @@ public class GameObject
     public void GetBoundsAbs(out AABB dest)
     {
         dest = AllBBox;
-        LoadObjectMatrixToTarget(out TmpObjMatrix);
-        MakeBoundsAbsolute(ref dest, TmpObjMatrix);
+        LoadObjectMatrixToTarget(out Matrix tmpObjMatrix);
+        MakeBoundsAbsolute(ref dest, tmpObjMatrix);
     }
 
     protected AABB Get2DBoundsAbs(Matrix rootMatrix)
     {
-        LoadObjectMatrixToTarget(out TmpObjMatrix);
-        Matrix.MultMatrices(rootMatrix, TmpObjMatrix, out Matrix.Temp);
-        GetLocalBoundsAbs(out AABB tempBounds, Matrix.Temp);
+        LoadObjectMatrixToTarget(out Matrix tmpObjMatrix);
+        Matrix.MultMatrices(rootMatrix, tmpObjMatrix, out Matrix temp);
+        GetLocalBoundsAbs(out AABB tempBounds, temp);
         tempBounds.MinX >>= 16;
         tempBounds.MinY >>= 16;
         tempBounds.MaxX >>= 16;
@@ -514,9 +509,8 @@ public class GameObject
 
     public static void MakeObjectLinks(GameObject[] objects)
     {
-        for (int i = 0; i < objects.Length; i++)
+        foreach (GameObject obj in objects)
         {
-            GameObject obj = objects[i];
             if (obj.parentIdx > -1)
             {
                 GameObject jVar2 = objects[obj.parentIdx];
@@ -530,15 +524,14 @@ public class GameObject
                 prevObj.nextNode = obj;
             }
         }
-        for (int i = 0; i < objects.Length; i++)
+        foreach (GameObject obj in objects)
         {
-            objects[i].RenderMatrixIsDirty = true;
-            objects[i].bboxIsDirty = true;
-            objects[i].ObjectMatrixIsDirty = true;
-            objects[i].RecalcAbsObjectMatrix();
-            objects[i].LoadObjectMatrixToTarget(out TmpObjMatrix);
-            objects[i].RenderCalcMatrix = TmpObjMatrix;
-            objects[i].RenderCalcMatrix.Invert(out objects[i].InverseRenderCalcMatrix);
+            obj.RenderMatrixIsDirty = true;
+            obj.bboxIsDirty = true;
+            obj.ObjectMatrixIsDirty = true;
+            obj.RecalcAbsObjectMatrix();
+            obj.LoadObjectMatrixToTarget(out obj.RenderCalcMatrix);
+            obj.RenderCalcMatrix.Invert(out obj.InverseRenderCalcMatrix);
         }
     }
 
@@ -609,8 +602,7 @@ public class GameObject
         GameObject objRoot = GetObjectRoot();
         if (parentNode != null && parentNode != objRoot)
         {
-            LoadObjectMatrixToTarget(out TmpObjMatrix);
-            LocalObjectMatrix = TmpObjMatrix;
+            LoadObjectMatrixToTarget(out LocalObjectMatrix);
             SetParent(objRoot);
         }
     }
@@ -623,8 +615,7 @@ public class GameObject
             throw new ArgumentException("Can't set parent to self.", nameof(parent));
         Despawn();
         nextNode = parent.firstChildNode;
-        if (nextNode != null)
-            nextNode.previousNode = this;
+        nextNode?.previousNode = this;
         parentNode = parent;
         parentNode.firstChildNode = this;
     }
@@ -636,15 +627,12 @@ public class GameObject
             if (parentNode.firstChildNode == this)
             {
                 parentNode.firstChildNode = nextNode;
-                if (nextNode != null)
-                    nextNode.previousNode = null;
+                nextNode?.previousNode = null;
             }
             else
             {
-                if (previousNode != null)
-                    previousNode.nextNode = nextNode;
-                if (nextNode != null)
-                    nextNode.previousNode = previousNode;
+                previousNode?.nextNode = nextNode;
+                nextNode?.previousNode = previousNode;
             }
             parentNode = null;
             nextNode = null;

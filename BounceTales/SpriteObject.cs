@@ -33,8 +33,8 @@ public sealed class SpriteObject() : GameObject(TYPEID)
             dataPos += 2;
             if (bitSize > 0)
             {
-                dataPos = DecomposeBytesToShorts(xCoords, count, baseX, 1, data, dataPos, bitSize);
-                dataPos = DecomposeBytesToShorts(yCoords, count, baseY, 1, data, dataPos, bitSize);
+                dataPos = DecomposeBytesToShorts(xCoords, count, baseX, data, dataPos, bitSize);
+                dataPos = DecomposeBytesToShorts(yCoords, count, baseY, data, dataPos, bitSize);
             }
             else
             {
@@ -44,7 +44,7 @@ public sealed class SpriteObject() : GameObject(TYPEID)
                     yCoords[i] = baseY;
                 }
             }
-            dataPos = DecomposeBytesToShorts(imageIDs, count, 0, 1, data, dataPos, 16);
+            dataPos = DecomposeBytesToShorts(imageIDs, count, 0, data, dataPos, 16);
             for (int i = 0; i < count; i++)
                 actionImageIDs[i] = -1;
         }
@@ -82,20 +82,17 @@ public sealed class SpriteObject() : GameObject(TYPEID)
     public override void Draw(Graphics graphics, Matrix rootMatrix)
     {
         base.Draw(graphics, rootMatrix);
-        int anmTime;
-        Color32 fadeColor;
-        int actYPos;
-        int anmFrame;
-        int anmLength;
-        LoadObjectMatrixToTarget(out TmpObjMatrix);
-        Matrix.MultMatrices(rootMatrix, TmpObjMatrix, out Matrix.Temp);
+        LoadObjectMatrixToTarget(out Matrix tmpObjMatrix);
+        Matrix.MultMatrices(rootMatrix, tmpObjMatrix, out Matrix temp);
         for (int componentIdx = 0; componentIdx < imageIDs.Length; componentIdx++)
         {
-            Vector2I pos = Matrix.Temp.MulVector(xCoords[componentIdx] << 16, yCoords[componentIdx] << 16) >> 16;
+            Vector2I pos = temp.MulVector(xCoords[componentIdx] << 16, yCoords[componentIdx] << 16) >> 16;
             if (actionImageIDs[componentIdx] > -1)
             {
                 int anmProgress = imageIDs[componentIdx]; // field repurposed
                 int normalAnmTime = anmProgress != 9999 ? anmProgress : BounceGame.LevelTimer;
+                int anmTime;
+                Color32 fadeColor;
                 if (anmProgress > 0 || actionImageIDs[componentIdx] != 474)
                 {
                     anmTime = normalAnmTime;
@@ -108,6 +105,7 @@ public sealed class SpriteObject() : GameObject(TYPEID)
                 }
                 Vector2I posAnim = pos;
                 Graphics orgGraphics = GameRuntime.GetGraphicsObj();
+                int actYPos;
                 if (fadeColor != Color32.Zero)
                 {
                     BounceGame.SpriteOffscreenGraphics.SetColor(0x0000FF); // red - transparency key color
@@ -121,9 +119,10 @@ public sealed class SpriteObject() : GameObject(TYPEID)
                 else
                     actYPos = pos.Y;
                 int anmFrameCount = GameRuntime.GetImageAnimationFrameCount(actionImageIDs[componentIdx]);
+                int anmFrame;
                 if (anmProgress != 9999)
                 {
-                    anmLength = actionImageIDs[componentIdx] switch
+                    int anmLength = actionImageIDs[componentIdx] switch
                     {
                         474 => 750,
                         480 or 485 => 9999,

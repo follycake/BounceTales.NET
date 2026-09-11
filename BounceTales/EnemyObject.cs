@@ -2,7 +2,6 @@
 
 namespace BounceTales;
 
-// TODO: Separate enemy types to different classes.
 public sealed class EnemyObject() : GameObject(TYPEID)
 {
     public const byte TYPEID = 10;
@@ -53,9 +52,9 @@ public sealed class EnemyObject() : GameObject(TYPEID)
 
     private void KillAndDropEgg()
     {
-        LoadObjectMatrixToTarget(out TmpObjMatrix);
-        int posX = TmpObjMatrix.TranslationX;
-        int posY = TmpObjMatrix.TranslationY;
+        LoadObjectMatrixToTarget(out Matrix tmpObjMatrix);
+        int posX = tmpObjMatrix.TranslationX;
+        int posY = tmpObjMatrix.TranslationY;
         BounceGame.EnemyDeathParticle.EmitCircle(10, posX, (ENEMY_HEIGHTS[(byte)enemyType] << 16 >> 1) + posY, 370, 0, 920, 230);
         Despawn();
         BounceGame.EnemyDeadEgg.LocalObjectMatrix.TranslationX = posX;
@@ -120,10 +119,10 @@ public sealed class EnemyObject() : GameObject(TYPEID)
 
     public override void Draw(Graphics graphics, Matrix rootMatrix)
     {
-        LoadObjectMatrixToTarget(out TmpObjMatrix);
-        Matrix.MultMatrices(rootMatrix, TmpObjMatrix, out Matrix.Temp);
-        int posX = Matrix.Temp.TranslationX >> 16;
-        int posY = Matrix.Temp.TranslationY >> 16;
+        LoadObjectMatrixToTarget(out Matrix tmpObjMatrix);
+        Matrix.MultMatrices(rootMatrix, tmpObjMatrix, out Matrix temp);
+        int posX = temp.TranslationX >> 16;
+        int posY = temp.TranslationY >> 16;
         switch (enemyType)
         {
             case Type.CANDLE: // candle
@@ -147,10 +146,7 @@ public sealed class EnemyObject() : GameObject(TYPEID)
                         i3 = clipHeight;
                     graphics.SetClip(clipX, clipY, clipWidth, i3);
                     int molePeekY = molePeekTimer * 61 / molePeekPeriod;
-                    if (facingLeft)
-                        GameRuntime.DrawImageRes(posX, posY + 61 - molePeekY, 189);
-                    else
-                        GameRuntime.DrawImageRes(posX, posY + 61 - molePeekY, 194);
+                    GameRuntime.DrawImageRes(posX, posY + 61 - molePeekY, facingLeft ? 189 : 194);
                     graphics.SetClip(clipX, clipY, clipWidth, clipHeight);
                 }
                 GameRuntime.DrawAnimatedImageRes(posX, posY, 504, state == 0 ? BounceGame.LevelTimer / 150 % 4 : 0);
@@ -164,8 +160,8 @@ public sealed class EnemyObject() : GameObject(TYPEID)
 
     public override void OnPlayerContact()
     {
-        LoadObjectMatrixToTarget(out TmpObjMatrix);
-        int myX = TmpObjMatrix.TranslationX;
+        LoadObjectMatrixToTarget(out Matrix tmpObjMatrix);
+        int myX = tmpObjMatrix.TranslationX;
         int bounceX = BounceGame.BounceObj.LocalObjectMatrix.TranslationX;
         if (rechargeTimer <= 0 && propelType == 0 && state == 1)
         {
@@ -201,8 +197,8 @@ public sealed class EnemyObject() : GameObject(TYPEID)
             case Type.CANDLE:
                 if (rechargeTimer <= 0)
                 {
-                    LoadObjectMatrixToTarget(out TmpObjMatrix);
-                    if (TmpObjMatrix.TranslationX < BounceGame.BounceObj.LocalObjectMatrix.TranslationX)
+                    LoadObjectMatrixToTarget(out Matrix tmpObjMatrix);
+                    if (tmpObjMatrix.TranslationX < BounceGame.BounceObj.LocalObjectMatrix.TranslationX)
                         BounceGame.BounceObj.PushX += 500.0f;
                     else
                         BounceGame.BounceObj.PushX -= 500.0f;
@@ -239,9 +235,6 @@ public sealed class EnemyObject() : GameObject(TYPEID)
 
     public override void UpdatePhysics()
     {
-        int targetTX;
-        int targetTY;
-        int otherMovePointX;
         SetIsDirtyRecursive();
         base.UpdatePhysics();
         if (BounceGame.CurrentLevel != LevelID.FINAL_RIDE || EventObject.EventVars[8] != 5)
@@ -341,6 +334,9 @@ public sealed class EnemyObject() : GameObject(TYPEID)
                         }
                     }
                 }
+                int targetTX;
+                int targetTY;
+                int otherMovePointX;
                 if (curMovePoint == 0)
                 {
                     targetTX = movePoint1X;
@@ -355,8 +351,8 @@ public sealed class EnemyObject() : GameObject(TYPEID)
                 }
                 if (enemyType == Type.CANDLE && Math.Abs(tx - targetTX) > LP32.Int32ToLP32(70) && Math.Abs(tx - otherMovePointX) > LP32.Int32ToLP32(70))
                 {
-                    LoadObjectMatrixToTarget(out TmpObjMatrix);
-                    int myAbsX = TmpObjMatrix.TranslationX;
+                    LoadObjectMatrixToTarget(out Matrix tmpObjMatrix);
+                    int myAbsX = tmpObjMatrix.TranslationX;
                     int bounceX = BounceGame.BounceObj.LocalObjectMatrix.TranslationX;
                     if (Math.Abs(bounceX - myAbsX) < LP32.Int32ToLP32(120) && (myAbsX < bounceX && targetTX < tx || myAbsX > bounceX && targetTX > tx))
                     {
@@ -404,10 +400,7 @@ public sealed class EnemyObject() : GameObject(TYPEID)
                 {
                     tx = targetTX;
                     ty = targetTY;
-                    if (curMovePoint == 0)
-                        curMovePoint = 1;
-                    else
-                        curMovePoint = 0;
+                    curMovePoint = curMovePoint == 0 ? (byte)1 : (byte)0;
                 }
             }
             if (enemyType != Type.MOLE || enemyType == Type.MOLE && propelType == 0 && state == 0)

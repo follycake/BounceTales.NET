@@ -73,10 +73,10 @@ public sealed class CannonObject() : GameObject(TYPEID)
                 }
             }
         }
-        LoadObjectMatrixToTarget(out TmpObjMatrix);
-        Matrix.MultMatrices(rootMatrix, TmpObjMatrix, out Matrix.Temp);
-        int imageX = Matrix.Temp.TranslationX >> 16;
-        int imageY = Matrix.Temp.TranslationY >> 16;
+        LoadObjectMatrixToTarget(out Matrix tmpObjMatrix);
+        Matrix.MultMatrices(rootMatrix, tmpObjMatrix, out Matrix temp);
+        int imageX = temp.TranslationX >> 16;
+        int imageY = temp.TranslationY >> 16;
         for (int i = 0; i < 3; i++)
         {
             GameObject model = BounceGame.CannonModels[i + 9];
@@ -99,8 +99,8 @@ public sealed class CannonObject() : GameObject(TYPEID)
             BounceGame.CurrentControllerState = BounceGame.Controller.CANNON;
             BounceGame.CurrentCannon = this;
             BounceObject bounce = (BounceObject)GetObjectRoot().SearchByObjId(bounceObjId);
-            LoadObjectMatrixToTarget(out TmpObjMatrix);
-            bounce.SetPosXY(TmpObjMatrix.TranslationX, TmpObjMatrix.TranslationY + 2293760);
+            LoadObjectMatrixToTarget(out Matrix tmpObjMatrix);
+            bounce.SetPosXY(tmpObjMatrix.TranslationX, tmpObjMatrix.TranslationY + 2293760);
             bounce.EnablePhysics = false;
             bounce.IsVisible = false;
         }
@@ -130,8 +130,8 @@ public sealed class CannonObject() : GameObject(TYPEID)
                 bounce.TorqueY = 0.0f;
                 BounceGame.CurrentControllerState = BounceGame.Controller.NORMAL;
                 reloadCooldown = 500;
-                LoadObjectMatrixToTarget(out TmpObjMatrix);
-                Vector2I head = TmpObjMatrix.MulVector(120 << 16, 0);
+                LoadObjectMatrixToTarget(out Matrix tmpObjMatrix);
+                Vector2I head = tmpObjMatrix.MulVector(120 << 16, 0);
                 bounce.LocalObjectMatrix.Translation = head;
                 BounceGame.CannonParticle.EmitBlast(10, head.X, head.Y, 800, 200, LocalObjectMatrix.M00, LocalObjectMatrix.M10, 30, 800, 200);
             }
@@ -156,10 +156,10 @@ public sealed class CannonObject() : GameObject(TYPEID)
     {
         if (animCountdown == 0)
         {
-            Matrix.Temp.SetRotation(GameRuntime.UpdateDelta * 0.001f * 3.0f);
-            Matrix.Temp.TranslationX = 0;
-            Matrix.Temp.TranslationY = 0;
-            LocalObjectMatrix.Mul(Matrix.Temp);
+            Matrix temp = Matrix.Identity;
+            temp.SetRotation(GameRuntime.UpdateDelta * 0.001f * 3.0f);
+            temp.Translation = Vector2I.Zero;
+            LocalObjectMatrix.Mul(temp);
             if (isFacingRight && LocalObjectMatrix.M00 < 0)
             {
                 // set rotation to 90 degrees, scaleX to 1
@@ -184,10 +184,10 @@ public sealed class CannonObject() : GameObject(TYPEID)
     {
         if (animCountdown == 0)
         {
-            Matrix.Temp.SetRotation(GameRuntime.UpdateDelta * 0.001f * -3.0f);
-            Matrix.Temp.TranslationX = 0;
-            Matrix.Temp.TranslationY = 0;
-            LocalObjectMatrix.Mul(Matrix.Temp);
+            Matrix temp = Matrix.Identity;
+            temp.SetRotation(GameRuntime.UpdateDelta * 0.001f * -3.0f);
+            temp.Translation = Vector2I.Zero;
+            LocalObjectMatrix.Mul(temp);
             if (isFacingRight && LocalObjectMatrix.M01 > 0)
             {
                 // negative sine of angle > 0 -> angle is 180 to 360

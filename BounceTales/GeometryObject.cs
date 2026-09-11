@@ -6,10 +6,6 @@ public sealed class GeometryObject() : GameObject(TYPEID)
 {
     public const byte TYPEID = 2;
 
-    // Global temp variables
-    //public static int[] TEMP_QUAD_XS; // We don't need these anymore.
-    //public static int[] TEMP_QUAD_YS;
-
     // Parameters
     public short Event;
 
@@ -43,7 +39,7 @@ public sealed class GeometryObject() : GameObject(TYPEID)
         dataPos = DecomposeBytesToInts(XCoordBuffer, vertexCount - 1, vertexXBase, data, dataPos + 11, dataBitSize);
         short vertexYBase = ReadShort(data, dataPos);
         dataPos = DecomposeBytesToInts(YCoordBuffer, vertexCount - 1, vertexYBase, data, dataPos + 2, dataBitSize);
-        dataPos = DecomposeBytesToShorts(indexBuffer, facepointCount, 0, 1, data, dataPos + 1, data[dataPos]);
+        dataPos = DecomposeBytesToShorts(indexBuffer, facepointCount, 0, data, dataPos + 1, data[dataPos]);
         XCoordBuffer[vertexCount - 1] = XCoordBuffer[0];
         YCoordBuffer[vertexCount - 1] = YCoordBuffer[0];
 
@@ -56,19 +52,19 @@ public sealed class GeometryObject() : GameObject(TYPEID)
     public override void Initialize()
     {
         base.Initialize();
-        for (int i = 0; i < XCoordBuffer.Length; i++)
+        foreach (int x in XCoordBuffer)
         {
-            if (XCoordBuffer[i] < BBox.MinX)
-                BBox.MinX = XCoordBuffer[i];
-            if (XCoordBuffer[i] > BBox.MaxX)
-                BBox.MaxX = XCoordBuffer[i];
+            if (x < BBox.MinX)
+                BBox.MinX = x;
+            if (x > BBox.MaxX)
+                BBox.MaxX = x;
         }
-        for (int i = 0; i < YCoordBuffer.Length; i++)
+        foreach (int y in YCoordBuffer)
         {
-            if (YCoordBuffer[i] < BBox.MinY)
-                BBox.MinY = YCoordBuffer[i];
-            if (YCoordBuffer[i] > BBox.MaxY)
-                BBox.MaxY = YCoordBuffer[i];
+            if (y < BBox.MinY)
+                BBox.MinY = y;
+            if (y > BBox.MaxY)
+                BBox.MaxY = y;
         }
     }
 
@@ -77,13 +73,13 @@ public sealed class GeometryObject() : GameObject(TYPEID)
         Vector2I t;
         if (GeometryTransformIsDirty)
         {
-            LoadObjectMatrixToTarget(out TmpObjMatrix);
+            LoadObjectMatrixToTarget(out Matrix tmpObjMatrix);
             t = rootMatrix.Translation;
             rootMatrix.Translation = Vector2I.Zero;
-            Matrix.MultMatrices(rootMatrix, TmpObjMatrix, out Matrix.Temp);
+            Matrix.MultMatrices(rootMatrix, tmpObjMatrix, out Matrix temp);
             rootMatrix.Translation = t;
             for (int i = 0; i < XCoordBuffer.Length; i++)
-                bufTransformed[i] = Matrix.Temp.MulVector(XCoordBuffer[i], YCoordBuffer[i]) >> 16;
+                bufTransformed[i] = temp.MulVector(XCoordBuffer[i], YCoordBuffer[i]) >> 16;
             GeometryTransformIsDirty = false;
         }
 

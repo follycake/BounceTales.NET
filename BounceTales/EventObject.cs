@@ -351,14 +351,15 @@ public sealed class EventObject() : GameObject(TYPEID)
                         counter = 0;
                     }
                     float rotation = LP32.LP32ToFP32((int)(ReadInt(evCmd, 3) * (long)(duration - counter) / duration));
-                    Matrix.Temp.SetRotation(rotation);
-                    Matrix.Temp.TranslationX = 0;
-                    Matrix.Temp.TranslationY = 0;
+                    Matrix temp = Matrix.Identity;
+                    temp.SetRotation(rotation);
+                    temp.TranslationX = 0;
+                    temp.TranslationY = 0;
                     rotObj.LocalObjectMatrix.M00 = ReadInt(evCmd, 15);
                     rotObj.LocalObjectMatrix.M01 = ReadInt(evCmd, 19);
                     rotObj.LocalObjectMatrix.M10 = ReadInt(evCmd, 23);
                     rotObj.LocalObjectMatrix.M11 = ReadInt(evCmd, 27);
-                    rotObj.LocalObjectMatrix.Mul(Matrix.Temp);
+                    rotObj.LocalObjectMatrix.Mul(temp);
                     rotObj.SetIsDirtyRecursive();
                     rotObj.SetBBoxIsDirty();
                     int newCounter = counter - delta;
@@ -384,13 +385,13 @@ public sealed class EventObject() : GameObject(TYPEID)
                         GameObject srcObj = GetObjectRoot().SearchByObjId(srcObjId);
                         if (srcObj != null)
                         {
-                            srcObj.LoadObjectMatrixToTarget(out TmpObjMatrix);
-                            Vector2I srcTAbs = TmpObjMatrix.Translation;
+                            srcObj.LoadObjectMatrixToTarget(out Matrix tmpObjMatrix);
+                            Vector2I srcTAbs = tmpObjMatrix.Translation;
                             destObj.LocalObjectMatrix.Translation = Vector2I.Zero;
                             destObj.ObjectMatrixIsDirty = true;
-                            destObj.LoadObjectMatrixToTarget(out TmpObjMatrix);
-                            TmpObjMatrix.Invert(out Matrix.Temp); // load inverse rotation matrix
-                            destObj.LocalObjectMatrix.Translation = Matrix.Temp.MulVector(srcTAbs);
+                            destObj.LoadObjectMatrixToTarget(out tmpObjMatrix);
+                            tmpObjMatrix.Invert(out Matrix temp); // load inverse rotation matrix
+                            destObj.LocalObjectMatrix.Translation = temp.MulVector(srcTAbs);
                         }
                     }
                     destObj.SetIsDirtyRecursive();
@@ -431,10 +432,7 @@ public sealed class EventObject() : GameObject(TYPEID)
             case EventCommand.NOP: // NOP
                 return true;
             case EventCommand.END: // end event
-                if (repeatable == 1)
-                    eventState = State.WAITING;
-                else
-                    eventState = State.TERMINATED;
+                eventState = repeatable == 1 ? State.WAITING : State.TERMINATED;
                 return true;
             case EventCommand.WAIT_ACTOR_GONE:
                 return !ArrayContains(lastActorsInArea, lastAreaActorCount, GetObjectRoot().SearchByObjId(ReadShort(evCmd, 1)));
@@ -497,13 +495,13 @@ public sealed class EventObject() : GameObject(TYPEID)
                             SpriteObject sprite = (SpriteObject)obj;
                             if (sprite.imageIDs[0] == 358) // evil machine
                             {
-                                sprite.LoadObjectMatrixToTarget(out TmpObjMatrix);
+                                sprite.LoadObjectMatrixToTarget(out Matrix tmpObjMatrix);
                                 BounceGame.ColorMachineDestroyParticle.EmitIndependentBursts(
                                     24,
-                                    sprite.BBox.MinX + (60 << 16) + TmpObjMatrix.TranslationX,
-                                    sprite.BBox.MinY + (60 << 16) + TmpObjMatrix.TranslationY,
-                                    sprite.BBox.MaxX - (60 << 16) + TmpObjMatrix.TranslationX,
-                                    sprite.BBox.MaxY - (60 << 16) + TmpObjMatrix.TranslationY,
+                                    sprite.BBox.MinX + (60 << 16) + tmpObjMatrix.TranslationX,
+                                    sprite.BBox.MinY + (60 << 16) + tmpObjMatrix.TranslationY,
+                                    sprite.BBox.MaxX - (60 << 16) + tmpObjMatrix.TranslationX,
+                                    sprite.BBox.MaxY - (60 << 16) + tmpObjMatrix.TranslationY,
                                     840,
                                     0,
                                     0,
@@ -545,9 +543,8 @@ public sealed class EventObject() : GameObject(TYPEID)
     public static void UpdateEvents(EventObject[] events)
     {
         currentEvents = events;
-        for (int eventIdx = 0; eventIdx < events.Length; eventIdx++)
+        foreach (EventObject eventObj in events)
         {
-            EventObject eventObj = events[eventIdx];
             if (eventObj.triggerByLeave == 0)
             {
                 for (int i = 0; i < eventObj.queuedAreaActorCount; i++)
@@ -566,11 +563,11 @@ public sealed class EventObject() : GameObject(TYPEID)
                         triggerCandidates[i] = curActor;
                 }
             }
-            for (int i = 0; i < triggerCandidates.Length; i++)
+            foreach (GameObject triggerCandidate in triggerCandidates)
             {
-                if (triggerCandidates[i] != null && (eventObj.triggerObjId <= -1 || triggerCandidates[i].GetObjectId() == eventObj.triggerObjId))
+                if (triggerCandidate != null && (eventObj.triggerObjId <= -1 || triggerCandidate.GetObjectId() == eventObj.triggerObjId))
                 {
-                    Debug.WriteLine("Actor " + triggerCandidates[i].GetObjectId() + " triggered event " + eventObj.GetObjectId());
+                    Debug.WriteLine("Actor " + triggerCandidate.GetObjectId() + " triggered event " + eventObj.GetObjectId());
                     eventObj.ChangeEventState(State.ACTIVE);
                     break;
                 }
@@ -584,9 +581,8 @@ public sealed class EventObject() : GameObject(TYPEID)
             eventObj.lastAreaActorCount = eventObj.queuedAreaActorCount;
             eventObj.queuedAreaActorCount = 0;
         }
-        for (int i = 0; i < events.Length; i++)
+        foreach (EventObject eventObj in events)
         {
-            EventObject eventObj = events[i];
             while (eventObj.IsChildOf(BounceGame.RootLevelObj) && eventObj.eventState == State.ACTIVE && eventObj.ExecuteEvent(eventObj.events[eventObj.currentEvent]))
             {
                 /*if (BounceGame.currentLevel == LevelID.FINAL_RIDE) {
@@ -618,9 +614,8 @@ public sealed class EventObject() : GameObject(TYPEID)
     private void ResetTransformEvents()
     {
         currentEvent = -1;
-        for (int i = 0; i < events.Length; i++)
+        foreach (byte[] evt in events)
         {
-            byte[] evt = events[i];
             switch (evt[0])
             {
                 case 6:
@@ -648,15 +643,14 @@ public sealed class EventObject() : GameObject(TYPEID)
         int bboxW = bounce.BBox.MaxX - bounce.BBox.MinX;
         int bboxH = bounce.BBox.MaxY - bounce.BBox.MinY;
         int maxBBoxDimHalf = bboxW < bboxH ? bboxH >> 1 : bboxW >> 1;
-        for (int eventIdx = 0; eventIdx < events.Length; eventIdx++)
+        foreach (EventObject eventObj in events)
         {
-            EventObject eventObj = events[eventIdx];
             if (eventObj.eventState != State.TERMINATED)
             {
-                eventObj.LoadObjectMatrixToTarget(out TmpObjMatrix);
-                TmpObjMatrix.Invert(out Matrix.Temp);
-                Vector2I bounceOld = Matrix.Temp.MulVector(bounce.RenderCalcMatrix.Translation);
-                Vector2I bounceNew = Matrix.Temp.MulVector(bounce.LocalObjectMatrix.Translation);
+                eventObj.LoadObjectMatrixToTarget(out Matrix tmpObjMatrix);
+                tmpObjMatrix.Invert(out Matrix temp);
+                Vector2I bounceOld = temp.MulVector(bounce.RenderCalcMatrix.Translation);
+                Vector2I bounceNew = temp.MulVector(bounce.LocalObjectMatrix.Translation);
                 AABB aabb = new(
                     eventObj.BBox.MinX - maxBBoxDimHalf,
                     eventObj.BBox.MinY - maxBBoxDimHalf,
@@ -672,7 +666,7 @@ public sealed class EventObject() : GameObject(TYPEID)
         }
     }
 
-    private static bool ArrayContains(object[] array, int count, object obj)
+    private static bool ArrayContains(GameObject[] array, int count, GameObject obj)
     {
         for (int i = 0; i < count; i++)
         {

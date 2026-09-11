@@ -56,9 +56,9 @@ public sealed class TrampolineObject() : GameObject(TYPEID)
 
     public override void Draw(Graphics graphics, Matrix rootMatrix)
     {
-        LoadObjectMatrixToTarget(out TmpObjMatrix);
-        Matrix.MultMatrices(rootMatrix, TmpObjMatrix, out Matrix.Temp);
-        GameRuntime.DrawAnimatedImageRes(Matrix.Temp.TranslationX >> 16, Matrix.Temp.TranslationY >> 16, imageId, animFrame);
+        LoadObjectMatrixToTarget(out Matrix tmpObjMatrix);
+        Matrix.MultMatrices(rootMatrix, tmpObjMatrix, out Matrix temp);
+        GameRuntime.DrawAnimatedImageRes(temp.TranslationX >> 16, temp.TranslationY >> 16, imageId, animFrame);
         DebugDraw(graphics, 0xFF00FF, rootMatrix);
     }
 
@@ -87,8 +87,8 @@ public sealed class TrampolineObject() : GameObject(TYPEID)
 
     public override void OnPlayerContact()
     {
-        LoadObjectMatrixToTarget(out TmpObjMatrix);
-        jumper.LocalObjectMatrix.TranslationY = TmpObjMatrix.TranslationY - (LP32.Int32ToLP32((short)GameRuntime.GetCompoundSpriteParamEx(GameRuntime.GetImageIdAfterAnimation(imageId, animFrame), 0)) / ScreenSpaceMatrix.M00 << 16);
+        LoadObjectMatrixToTarget(out Matrix tmpObjMatrix);
+        jumper.LocalObjectMatrix.TranslationY = tmpObjMatrix.TranslationY - (LP32.Int32ToLP32((short)GameRuntime.GetCompoundSpriteParamEx(GameRuntime.GetImageIdAfterAnimation(imageId, animFrame), 0)) / ScreenSpaceMatrix.M00 << 16);
         if (jumper.Equals(BounceGame.BounceObj))
             BounceGame.CurrentControllerState = BounceGame.Controller.FROZEN;
     }

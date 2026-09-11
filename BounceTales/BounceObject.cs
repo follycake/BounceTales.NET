@@ -149,9 +149,6 @@ public sealed class BounceObject : GameObject
     private readonly Vector2I[] collPoints = new Vector2I[MAX_COLLISION_POINTS];
     private readonly Vector2I[] collUnknown1 = new Vector2I[MAX_COLLISION_POINTS];
     private readonly Vector2I[] collUnknown2 = new Vector2I[MAX_COLLISION_POINTS];
-    
-    //private readonly int[] f68n = new int[MAX_COLLISION_POINTS];
-    //private readonly int[] f70o = new int[MAX_COLLISION_POINTS];
 
     // State - Super Bounce
     private int superBounceParticleTimer;
@@ -209,16 +206,6 @@ public sealed class BounceObject : GameObject
 
     public override void CheckCollisions(GameObject startNode)
     {
-        int higherX;
-        int lowerX;
-        int higherY;
-        int lowerY;
-        int xmax;
-        int xmin;
-        int ymax;
-        int ymin;
-        int i9;
-        bool z;
         for (int i10 = 2; i10 < 10; i10++)
         {
             collPointCount = 0;
@@ -233,6 +220,8 @@ public sealed class BounceObject : GameObject
                 if (other.ObjectMatrixIsDirty)
                     other.RecalcAbsObjectMatrix();
                 Vector2I newRelToOther = other.InvAbsoluteObjectMatrix.MulVector(LocalObjectMatrix.Translation);
+                int higherX;
+                int lowerX;
                 if (relToOther.X > newRelToOther.X)
                 {
                     higherX = relToOther.X;
@@ -243,6 +232,8 @@ public sealed class BounceObject : GameObject
                     higherX = newRelToOther.X;
                     lowerX = relToOther.X;
                 }
+                int higherY;
+                int lowerY;
                 if (relToOther.Y > newRelToOther.Y)
                 {
                     higherY = relToOther.Y;
@@ -279,6 +270,8 @@ public sealed class BounceObject : GameObject
                                 int y1 = geom.YCoordBuffer[vertIdx];
                                 int x2 = geom.XCoordBuffer[vertIdx + 1];
                                 int y2 = geom.YCoordBuffer[vertIdx + 1];
+                                int xmax;
+                                int xmin;
                                 if (x1 > x2)
                                 {
                                     xmax = x1;
@@ -289,6 +282,8 @@ public sealed class BounceObject : GameObject
                                     xmax = x2;
                                     xmin = x1;
                                 }
+                                int ymax;
+                                int ymin;
                                 if (y1 > y2)
                                 {
                                     ymax = y1;
@@ -299,6 +294,8 @@ public sealed class BounceObject : GameObject
                                     ymax = y2;
                                     ymin = y1;
                                 }
+                                int i9;
+                                bool z;
                                 if (AABB.Intersects(new(xmin, ymin, xmax, ymax), new(collAABBMinX, collAABBMinY, collAABBMaxX, collAABBMaxY)))
                                 {
                                     if (!z2)
@@ -349,12 +346,7 @@ public sealed class BounceObject : GameObject
                             }
                             other = other.GetNextNodeDescendToChildren(startNode);
                             break;
-                        case 3:
-                        case 5:
                         default:
-                            other = other.GetNextNodeDescendToChildren(startNode);
-                            break;
-                        case TYPEID:
                             other = other.GetNextNodeDescendToChildren(startNode);
                             break;
                         case WaterObject.TYPEID: // water
@@ -415,8 +407,8 @@ public sealed class BounceObject : GameObject
                             int i46 = newRelToOther.Y >> 16;
                             if (i45 * i45 + i46 * i46 < 2025)
                             {
-                                collectEgg.LoadObjectMatrixToTarget(out TmpObjMatrix);
-                                BounceGame.EggCollectParticle.EmitCircle(8, TmpObjMatrix.TranslationX, TmpObjMatrix.TranslationY, 540, 0, 540, 0);
+                                collectEgg.LoadObjectMatrixToTarget(out Matrix tmpObjMatrix);
+                                BounceGame.EggCollectParticle.EmitCircle(8, tmpObjMatrix.TranslationX, tmpObjMatrix.TranslationY, 540, 0, 540, 0);
                                 if (collectEgg.Equals(BounceGame.EnemyDeadEgg))
                                 {
                                     BounceGame.EggCount++;
@@ -547,6 +539,7 @@ public sealed class BounceObject : GameObject
     {
         Vector2I vectorMulRsl;
         Vector2I lastVectorMul;
+        Matrix tmpObjMatrix;
         if (t > 0)
         {
             collPoints[collPointCount].X = RenderCalcMatrix.TranslationX + (int)(x * (long)t >> 16);
@@ -556,8 +549,8 @@ public sealed class BounceObject : GameObject
             vectorMulRsl = geometry.RenderCalcMatrix.MulDirection(x2, y2);
             lastVectorMul = vectorMulRsl;
 
-            geometry.LoadObjectMatrixToTarget(out TmpObjMatrix);
-            vectorMulRsl = TmpObjMatrix.MulDirection(x2, y2);
+            geometry.LoadObjectMatrixToTarget(out tmpObjMatrix);
+            vectorMulRsl = tmpObjMatrix.MulDirection(x2, y2);
             collUnknown1[collPointCount].X = (int)(lastVectorMul.X * (long)(LP32.ONE - t) + vectorMulRsl.X * (long)t >> 16);
             collUnknown1[collPointCount].Y = (int)(lastVectorMul.Y * (long)(LP32.ONE - t) + vectorMulRsl.Y * (long)t >> 16);
         }
@@ -575,8 +568,8 @@ public sealed class BounceObject : GameObject
         vectorMulRsl = geometry.RenderCalcMatrix.MulVector(aabbRay);
         lastVectorMul = vectorMulRsl;
 
-        geometry.LoadObjectMatrixToTarget(out TmpObjMatrix);
-        vectorMulRsl = TmpObjMatrix.MulVector(aabbRay);
+        geometry.LoadObjectMatrixToTarget(out tmpObjMatrix);
+        vectorMulRsl = tmpObjMatrix.MulVector(aabbRay);
         collUnknown2[collPointCount] = vectorMulRsl - lastVectorMul;
         collPointCount++;
         if (geometry.Event > -1)
@@ -683,17 +676,14 @@ public sealed class BounceObject : GameObject
     public override void Draw(Graphics graphics, Matrix rootMatrix)
     {
         base.Draw(graphics, rootMatrix);
-        int fbBallCY;
-        int fbBallCX;
-        Graphics graphics2;
         if (IsVisible)
         {
-            LoadObjectMatrixToTarget(out TmpObjMatrix);
-            Matrix.MultMatrices(rootMatrix, TmpObjMatrix, out Matrix.Temp);
-            Matrix.Temp.MulVector(LocalObjectMatrix.Translation); // ???
-            int ballX = Matrix.Temp.TranslationX >> 16;
-            int ballY = Matrix.Temp.TranslationY >> 16;
-            Vector2I vectorMulRsl = Matrix.Temp.MulVector(-(BALL_DIMENS[(int)BallForme] << 16), BALL_DIMENS[(int)BallForme] << 16);
+            LoadObjectMatrixToTarget(out Matrix tmpObjMatrix);
+            Matrix.MultMatrices(rootMatrix, tmpObjMatrix, out Matrix temp);
+            temp.MulVector(LocalObjectMatrix.Translation); // ???
+            int ballX = temp.TranslationX >> 16;
+            int ballY = temp.TranslationY >> 16;
+            Vector2I vectorMulRsl = temp.MulVector(-(BALL_DIMENS[(int)BallForme] << 16), BALL_DIMENS[(int)BallForme] << 16);
             int ballTLX = vectorMulRsl.X >> 16;
             int ballTLY = vectorMulRsl.Y >> 16;
             int ballHalfWidthX = ballX - ballTLX;
@@ -705,6 +695,9 @@ public sealed class BounceObject : GameObject
                     case Forme.BOUNCE:
                         {
                             Graphics orgGraphics = GameRuntime.GetGraphicsObj();
+                            int fbBallCY;
+                            int fbBallCX;
+                            Graphics graphics2;
                             if (FadeColor != Color32.Zero)
                             {
                                 BounceGame.BallGraphics.SetColor(0x0000FF);
@@ -736,22 +729,22 @@ public sealed class BounceObject : GameObject
                             int innerRadius = BALL_DIMENS_SCREENSPACE[(int)BallForme] * 90 / 100;
                             FillStretchedCircle(fbBallCX, fbBallCY + 2, innerRadius, BALL_DIMENS_SCREENSPACE[(int)BallForme], BOUNCE_SECONDARY_COLOR, graphics2, false, false);
                             FillStretchedCircle(fbBallCX + 1, fbBallCY - 1, innerRadius, BALL_DIMENS_SCREENSPACE[(int)BallForme], BOUNCE_PRIMARY_COLOR, graphics2, false, true);
-                            Matrix.Temp.SetRotation(5.3f);
+                            temp.SetRotation(5.3f);
                             int i16 = stretchBuffer[1] >> 1;
                             int i17 = stretchBuffer[1] - i16 + 1;
-                            int highlightX = fbBallCX + (Matrix.Temp.M00 * i17 >> 16);
-                            int highlightY = fbBallCY + (i17 * Matrix.Temp.M10 >> 16);
+                            int highlightX = fbBallCX + (temp.M00 * i17 >> 16);
+                            int highlightY = fbBallCY + (i17 * temp.M10 >> 16);
                             for (int i20 = 0; i20 < 12; i20++)
                             {
                                 int abs = Math.Abs(i20 & 1) + 31;
                                 int i21 = 100 - (i20 << 2);
-                                Matrix.Temp.SetRotation(rotation + i20 * 0.8f);
+                                temp.SetRotation(rotation + i20 * 0.8f);
                                 int posBase = stretchResultsAbs[1] + stretchDirBalance[1] >> 10;
                                 for (int i22 = 0; i22 < 4; i22++)
                                 {
                                     int i23 = (stretchBuffer[i22] - (stretchBuffer[i22] >> 1 >> 1)) * i21 / 100;
-                                    int i24 = (Matrix.Temp.M00 * i23 >> 16) + fbBallCX;
-                                    int i25 = (i23 * Matrix.Temp.M10 >> 16) + fbBallCY;
+                                    int i24 = (temp.M00 * i23 >> 16) + fbBallCX;
+                                    int i25 = (i23 * temp.M10 >> 16) + fbBallCY;
                                     if (i22 == 0)
                                     {
                                         if (i24 >= fbBallCX && i25 <= fbBallCY)
@@ -946,8 +939,6 @@ public sealed class BounceObject : GameObject
 
     public override void UpdatePhysics()
     {
-        float f;
-        float f2;
         SetIsDirtyRecursive();
         base.UpdatePhysics();
         ObjectMatrixIsDirty = true;
@@ -992,6 +983,8 @@ public sealed class BounceObject : GameObject
             float f7 = TorqueX * slopeSinAbs + TorqueY * slopeCosAbs;
             float f8 = slopeSinAbs * f7;
             float f9 = slopeCosAbs * f7;
+            float f;
+            float f2;
             if (slopeSinAbs * TorqueX + slopeCosAbs * TorqueY >= 0.0f)
             {
                 f = TorqueX - f8;

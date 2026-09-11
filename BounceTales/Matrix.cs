@@ -7,7 +7,6 @@ public struct Matrix
         M00 = LP32.ONE,
         M11 = LP32.ONE
     };
-    public static Matrix Temp = new();
 
     public Vector2I Translation
     {
