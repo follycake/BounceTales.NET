@@ -5,6 +5,8 @@ namespace BounceTales;
 
 public class GameObject
 {
+    protected static bool DEBUG_DRAW_ON => GameRuntime.MidLet.System.ObjectDrawDebug;
+    
     public const byte TYPEID_DUMMY = 1;
 
     [Flags]
@@ -683,10 +685,11 @@ public class GameObject
         AABB bounds = Get2DBoundsAbs(rootMatrix);
         graphics.DrawRect(bounds.MinX, bounds.MinY, bounds.Width, bounds.Height);
     }
-
-    [Conditional("DEBUG_DRAW_ON")]
+    
     protected void DebugDraw(Graphics graphics, int color, Matrix rootMatrix)
     {
+        if (!DEBUG_DRAW_ON)
+            return;
         graphics.SetColor(color);
         GameRuntime.SetTextStyle(-3, 1);
         DrawBBox(graphics, rootMatrix);

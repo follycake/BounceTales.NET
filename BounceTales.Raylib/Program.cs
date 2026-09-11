@@ -51,7 +51,7 @@ internal static class Program
         Trace.Listeners.Add(new ConsoleTraceListener());
 
         RaylibGraphicsProvider graphicsProvider = new();
-        Rl.SetConfigFlags(ConfigFlags.ResizableWindow);
+        Rl.SetConfigFlags(ConfigFlags.ResizableWindow | ConfigFlags.VSyncHint);
         Rl.InitWindow(graphicsProvider.WindowWidth, graphicsProvider.WindowHeight, "Bounce Tales");
         
         Rl.SetExitKey(KeyboardKey.Delete);

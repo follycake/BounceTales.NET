@@ -51,6 +51,8 @@ public abstract class Graphics
 
     public virtual void DrawString(string str, int x, int y, Anchor anchor)
     {
+        if (Font == null)
+            return;
         x += AnchorX(anchor, Font.StringWidth(str));
         y += AnchorY(anchor, Font.GetHeight());
         foreach (char c in str)

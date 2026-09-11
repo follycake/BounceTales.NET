@@ -12,8 +12,6 @@ public sealed class RMIDlet : IDisposable
     public IGraphicsProvider Graphics { get; set; }
     public IAudioProvider Audio { get; set; }
 
-    public event Action Paused;
-
     internal void Initialize()
     {
         System?.Initialize();
@@ -43,7 +41,6 @@ public sealed class RMIDlet : IDisposable
     public void Pause()
     {
         GameRuntime.SetState(GameState.PAUSE);
-        Paused?.Invoke();
     }
 
     public void RequestQuit()

@@ -45,6 +45,8 @@ public sealed class GameRuntime : IResourceHandler
         PAUSE = 3
     }
 
+    private static bool DEBUG_OVERLAY_ON => MidLet.System.DebugOverlay;
+
     private const Sprite.Transform NO_TRANSFORM = (Sprite.Transform)(-1);
     private const int LOADING_WAIT_TIMEOUT = 500;
 
@@ -176,6 +178,11 @@ public sealed class GameRuntime : IResourceHandler
 
     // BOUNCE
     public static BounceGame BounceGame;
+    
+    // DEBUG
+    private static float debugFps;
+    private static readonly long[] framets = new long[20];
+    private static int frameIndex;
 
     public static long CurrentTimeMillis()
     {
@@ -797,6 +804,22 @@ public sealed class GameRuntime : IResourceHandler
             SetSoftkey((Softkey)i, null, -1);
     }
 
+    private static void PaintDebugOverlay(Graphics g)
+    {
+        SetTextStyle(-3, 1);
+        g.SetColor(0xFF0000);
+        if (debugFps != 0f)
+        {
+            string fpsStr = ((int)debugFps).ToString();
+            int len = Math.Min(fpsStr.Length, 4);
+            fpsStr = "FPS: " + "0000"[len..] + fpsStr[..len];
+            g.DrawString(fpsStr, CurrentWidth >> 1, 2, Graphics.Anchor.HCENTER | Graphics.Anchor.TOP);
+        }
+        if (BounceGame.BounceObj != null)
+            g.DrawString("Pos: (" + (BounceGame.BounceObj.LocalObjectMatrix.TranslationX >> 16) + ", " + (BounceGame.BounceObj.LocalObjectMatrix.TranslationY >> 16) + ")", CurrentWidth >> 1, 2 + GetFontHeight(GetCurrentFont()) + 1, Graphics.Anchor.HCENTER | Graphics.Anchor.TOP);
+    }
+
+
     private static void GamePaint(Graphics graphics)
     {
         if (paintMode != 0 && graphics != null)
@@ -842,6 +865,9 @@ public sealed class GameRuntime : IResourceHandler
                         BounceGame.DrawSoftkeyUI(str, softkeyUITypes[i], xpos, ypos, (int)anchor);
                     }
                 }
+
+                if (DEBUG_OVERLAY_ON)
+                    PaintDebugOverlay(graphics);
             }
             catch (Exception e)
             {
@@ -1487,7 +1513,7 @@ public sealed class GameRuntime : IResourceHandler
     private static void UpdateGameLoad()
     {
         gameIsLoading = true;
-        new Thread(mInstance.RunLoad)
+        new Thread(RunLoad)
         {
             Name = "LoadingThread",
             IsBackground = true
@@ -1639,7 +1665,7 @@ public sealed class GameRuntime : IResourceHandler
         }
     }
 
-    private void RunLoad()
+    private static void RunLoad()
     {
         if (!GameThreadStarted)
             return;
@@ -1697,6 +1723,10 @@ public sealed class GameRuntime : IResourceHandler
             NotifySystemEvent(SystemEvent.START);
             ResumeRuntime();
             MidLet.Initialize();
+            
+            Array.Clear(framets);
+            frameIndex = 0;
+            debugFps = 0f;
         }
         catch (Exception e)
         {
@@ -1745,7 +1775,16 @@ public sealed class GameRuntime : IResourceHandler
                 UpdateGameLoad();
                 currentTime = CurrentTimeMillis();
             }
-            // Stuff...
+            if (DEBUG_OVERLAY_ON)
+            {
+                framets[frameIndex++] = currentTime;
+                if (frameIndex == framets.Length)
+                    frameIndex = 0;
+                if (framets[frameIndex] != 0f)
+                    debugFps = framets.Length / ((currentTime - framets[frameIndex]) / 1000f);
+                else
+                    debugFps = 0f;
+            }
             if (!reqSystemGamePause)
             {
                 for (int softkeyIdx = 0; softkeyIdx < reqSoftkeyTexts.Length; softkeyIdx++)

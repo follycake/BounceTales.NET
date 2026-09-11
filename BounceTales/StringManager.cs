@@ -70,11 +70,11 @@ public static class StringManager
 
     private static string FindAndReplace(string str, string toFind, string str3)
     {
-        int indexOf = str.IndexOf(toFind);
+        int indexOf = str.IndexOf(toFind, StringComparison.InvariantCulture);
         while (indexOf >= 0)
         {
             str = string.Concat(str.AsSpan(0, indexOf), str3, str.AsSpan(toFind.Length + indexOf));
-            indexOf = str.IndexOf(toFind);
+            indexOf = str.IndexOf(toFind, StringComparison.InvariantCulture);
         }
         return str;
     }

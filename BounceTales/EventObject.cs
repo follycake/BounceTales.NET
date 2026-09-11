@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using BounceTales.Microedition.Lcdui;
 
 namespace BounceTales;
 
@@ -68,25 +69,22 @@ public sealed class EventObject() : GameObject(TYPEID)
             for (int i = 0; i < evCmdCount; i++)
                 events[eventIdx][i] = data[dataPos++];
         }
-#if !DEBUG_DRAW_ON
-        Flags |= ObjectFlags.NODRAW;
-#endif
+        if (!DEBUG_DRAW_ON)
+            Flags |= ObjectFlags.NODRAW;
         return dataPos;
     }
 
-#if DEBUG_DRAW_ON
-        public override void Draw(Graphics graphics, Matrix rootMatrix)
+    public override void Draw(Graphics graphics, Matrix rootMatrix)
+    {
+        DebugDraw(graphics, eventState switch
         {
-            DebugDraw(graphics, eventState switch
-            {
-                State.WAITING => 0x0000FF,
-                State.TERMINATED => 0xFF0000,
-                State.ACTIVE => 0x00FF00,
-                State.PAUSED => 0x00CC00,
-                _ => 0
-            }, rootMatrix);
-        }
-#endif
+            State.WAITING => 0x0000FF,
+            State.TERMINATED => 0xFF0000,
+            State.ACTIVE => 0x00FF00,
+            State.PAUSED => 0x00CC00,
+            _ => 0
+        }, rootMatrix);
+    }
 
     public void ChangeEventState(State newState)
     {

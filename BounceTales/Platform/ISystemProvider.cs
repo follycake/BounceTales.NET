@@ -7,6 +7,8 @@ public interface ISystemProvider : IProvider
 {
     string Locale { get; }
     bool EnableCheats { get; }
+    bool DebugOverlay { get; }
+    bool ObjectDrawDebug { get; }
     long CurrentTimeMillis();
     byte[] LoadGameData();
     void SaveGameData(byte[] saveData);
@@ -20,6 +22,8 @@ public class DefaultSystemProvider : ISystemProvider
     public string SavePath { get; set; } = "save.bin";
     public string Locale { get; set; } = "en-US";
     public bool EnableCheats { get; set; }
+    public bool DebugOverlay { get; set; }
+    public bool ObjectDrawDebug { get; set; }
 
     private Stopwatch _stopwatch;
 
