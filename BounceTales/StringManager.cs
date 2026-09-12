@@ -5,8 +5,96 @@ namespace BounceTales;
 
 public static class StringManager
 {
+    public static readonly string[] LocaleList =
+    [
+        "af-ZA",
+        "am-ET",
+        "ar",
+        "as-IN",
+        "az-AZ",
+        "be",
+        "bg-BG",
+        "bn",
+        "bn-BD",
+        "bs-BA",
+        "ca",
+        "cs-CZ",
+        "da-DK",
+        "de",
+        "el-GR",
+        "en-US",
+        "es-ES",
+        "es-US",
+        "et-EE",
+        "eu",
+        "fa",
+        "fi-FI",
+        "fr",
+        "fr-CA",
+        "gl",
+        "gu-IN",
+        "ha",
+        "he-IL",
+        "hi-IN",
+        "hr-HR",
+        "hu-HU",
+        "hy",
+        "id-ID",
+        "ig-NG",
+        "is-IS",
+        "it",
+        "ka-GE",
+        "kk-KZ",
+        "km-KH",
+        "kn-IN",
+        "ks-IN",
+        "ky-KG",
+        "ln",
+        "lt-LT",
+        "lv-LV",
+        "mk-MK",
+        "ml-IN",
+        "mn-MN",
+        "mr-IN",
+        "ms-MY",
+        "nl-NL",
+        "no-NO",
+        "or-IN",
+        "pa",
+        "pl-PL",
+        "ps",
+        "pt-BR",
+        "pt-PT",
+        "ro-RO",
+        "ru-RU",
+        "si-LK",
+        "sk-SK",
+        "sl-SI",
+        "sq",
+        "sr-YU",
+        "st",
+        "sv",
+        "sw",
+        "ta",
+        "te-IN",
+        "tg-TJ",
+        "th-TH",
+        "tk",
+        "tl-PH",
+        "tr-TR",
+        "uk-UA",
+        "ur",
+        "uz-UZ",
+        "vi-VN",
+        "xh",
+        "xx",
+        "yo",
+        "zh-CN",
+        "zh-HK"
+    ];
+    
     // Removed mInstance and textReader.
-    private static string localeProperty;
+    // private static string localeProperty;
     // Removed platform checking, which we do not care about.
 
     public static string GetMessage(int msgId)
@@ -33,12 +121,11 @@ public static class StringManager
     public static string GetMessage(int msgId, string[] variables)
     {
         ISystemProvider system = GameRuntime.MidLet.System;
-        localeProperty ??= system.Locale;
         int offset = 0;
         try
         {
             // Removed stream caching.
-            using Stream langRscStrm = system.GetResourceAsStream("/lang." + localeProperty) ?? system.GetResourceAsStream("/lang.xx");
+            using Stream langRscStrm = system.GetResourceAsStream("/lang." + system.Locale) ?? system.GetResourceAsStream("/lang.xx");
             if (langRscStrm == null)
                 return "X";
             using DataInputStream textReader = new(langRscStrm);

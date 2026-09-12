@@ -1,6 +1,7 @@
 using BounceTales.Platform;
 using BounceTales.Platform.Software;
 using Godot;
+using Godot.Collections;
 using MeltySynth;
 using System;
 using System.Runtime.InteropServices;
@@ -22,7 +23,17 @@ public partial class Game : Node
         KeyCode.SOFTKEY_LEFT,
         KeyCode.SOFTKEY_MIDDLE,
         KeyCode.STAR,
-        KeyCode.POUND
+        KeyCode.POUND,
+        KeyCode.NUM0,
+        KeyCode.NUM1,
+        KeyCode.NUM2,
+        KeyCode.NUM3,
+        KeyCode.NUM4,
+        KeyCode.NUM5,
+        KeyCode.NUM6,
+        KeyCode.NUM7,
+        KeyCode.NUM8,
+        KeyCode.NUM9
     ];
     
     private RMIDlet _midlet;
@@ -30,6 +41,7 @@ public partial class Game : Node
     private MeltySynthProvider _synth;
     private AudioStreamGeneratorPlayback _playback;
     private float[] _audioBuffer;
+    private bool _quitEntirely;
     
     public override void _Ready()
     {
@@ -38,18 +50,42 @@ public partial class Game : Node
         AudioStreamPlayer musicPlayer = GetNode<AudioStreamPlayer>("%MusicPlayer");
         
         _midlet = new RMIDlet();
-        _midlet.System = new DefaultSystemProvider
+        DefaultSystemProvider systemProvider = new()
         {
             JarPath = ProjectSettings.GlobalizePath("user://game.jar"),
             DataPath = ProjectSettings.GlobalizePath("user://data/"),
             SavePath = ProjectSettings.GlobalizePath("user://save.bin")
         };
+        _midlet.System = systemProvider;
         _graphicsProvider = new GodotGraphicsProvider(this);
         _midlet.Graphics = _graphicsProvider;
-
+        
         SoundFont soundFont;
-        using (System.IO.MemoryStream stream = new(FileAccess.GetFileAsBytes("res://Chaos_Bank.sf2")))
+        void UseEmbeddedSoundFont()
+        {
+            using System.IO.MemoryStream stream = new(FileAccess.GetFileAsBytes("res://Chaos_Bank.sf2"));
             soundFont = new SoundFont(stream);
+        }
+        
+        if (FileAccess.FileExists(SettingsUI.ConfigPath))
+        {
+            Dictionary data = SettingsUI.LoadSettings();
+            _graphicsProvider.Scale = Vector2.One * data["Scale"].AsInt32();
+            systemProvider.Locale = StringManager.LocaleList[data["Locale"].AsInt32()];
+            systemProvider.EnableCheats = data["EnableCheats"].AsBool();
+            systemProvider.DebugOverlay = data["DebugOverlay"].AsBool();
+            systemProvider.ObjectDrawDebug = data["ObjectDrawDebug"].AsBool();
+            string jarPath = data["JarPath"].AsString();
+            if (!string.IsNullOrWhiteSpace(jarPath))
+                systemProvider.JarPath = jarPath;
+            string soundFontPath = data["SoundFontPath"].AsString();
+            if (!string.IsNullOrWhiteSpace(soundFontPath))
+                soundFont = new SoundFont(data["SoundFontPath"].AsString());
+            else
+                UseEmbeddedSoundFont();
+        }
+        else
+            UseEmbeddedSoundFont();
         _synth = new MeltySynthProvider(new Synthesizer(soundFont, (int)((AudioStreamGenerator)musicPlayer.Stream).MixRate));
         _midlet.Audio = _synth;
         _midlet.Start();
@@ -101,7 +137,10 @@ public partial class Game : Node
     {
         SceneTree tree = GetTree();
         Dispose();
-        tree.Quit();
+        if (_quitEntirely)
+            tree.Quit();
+        else
+            tree.ChangeSceneToFile("res://settings_ui.tscn");
     }
 
     public override void _ExitTree()
@@ -112,7 +151,10 @@ public partial class Game : Node
     public override void _Notification(int what)
     {
         if (what == NotificationWMCloseRequest)
+        {
+            _quitEntirely = true;
             _midlet.RequestQuit();
+        }
     }
 
     protected override void Dispose(bool disposing)

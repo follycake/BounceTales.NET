@@ -1,0 +1,125 @@
+[gd_scene format=3 uid="uid://px752dl1roxu"]
+
+[ext_resource type="Script" uid="uid://bmt87swoymatl" path="res://SettingsUI.cs" id="1_rwyt3"]
+
+[node name="SettingsUI" type="Control" unique_id=945841487]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_rwyt3")
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=1172944497]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer" unique_id=114593575]
+layout_mode = 2
+
+[node name="Label4" type="Label" parent="MarginContainer/VBoxContainer" unique_id=1132867335]
+layout_mode = 2
+text = "Game Jar (.jar)"
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=2038394730]
+layout_mode = 2
+
+[node name="JarPath" type="LineEdit" parent="MarginContainer/VBoxContainer/HBoxContainer2" unique_id=1545130710 groups=["config"]]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "user://game.jar"
+
+[node name="Browse" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer2" unique_id=1599829081]
+layout_mode = 2
+text = "Browse"
+
+[node name="OpenUserFolder" type="Button" parent="MarginContainer/VBoxContainer" unique_id=805552841]
+layout_mode = 2
+text = "Open user data folder"
+
+[node name="Label3" type="Label" parent="MarginContainer/VBoxContainer" unique_id=1984499254]
+layout_mode = 2
+text = "Sound Font (.sf2)"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=507733789]
+layout_mode = 2
+
+[node name="SoundFontPath" type="LineEdit" parent="MarginContainer/VBoxContainer/HBoxContainer" unique_id=1630674430 groups=["config"]]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Use embedded Chaos_Bank.sf2"
+
+[node name="Browse" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer" unique_id=2002709114]
+layout_mode = 2
+text = "Browse"
+
+[node name="Label2" type="Label" parent="MarginContainer/VBoxContainer" unique_id=1819636196]
+layout_mode = 2
+text = "Locale"
+
+[node name="Locale" type="OptionButton" parent="MarginContainer/VBoxContainer" unique_id=1757581514 groups=["config"]]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer" unique_id=351070885]
+layout_mode = 2
+text = "Rendering Scale"
+
+[node name="Scale" type="HSlider" parent="MarginContainer/VBoxContainer" unique_id=216531072 groups=["config"]]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 1.0
+max_value = 5.0
+value = 1.0
+rounded = true
+tick_count = 5
+ticks_on_borders = true
+
+[node name="EnableVSync" type="CheckButton" parent="MarginContainer/VBoxContainer" unique_id=1692536476 groups=["config"]]
+layout_mode = 2
+button_pressed = true
+text = "Enable VSync"
+
+[node name="EnableCheats" type="CheckButton" parent="MarginContainer/VBoxContainer" unique_id=37071777 groups=["config"]]
+layout_mode = 2
+text = "Enable Cheats"
+
+[node name="DebugOverlay" type="CheckButton" parent="MarginContainer/VBoxContainer" unique_id=801909552 groups=["config"]]
+layout_mode = 2
+text = "Debug Overlay"
+
+[node name="ObjectDrawDebug" type="CheckButton" parent="MarginContainer/VBoxContainer" unique_id=367661148 groups=["config"]]
+layout_mode = 2
+text = "Object Draw Debug"
+
+[node name="PlayButton" type="Button" parent="MarginContainer/VBoxContainer" unique_id=1134673267]
+layout_mode = 2
+text = "Play"
+
+[node name="JarDialog" type="FileDialog" parent="." unique_id=954714568]
+title = "Open a File"
+file_mode = 0
+access = 2
+use_native_dialog = true
+
+[node name="SoundFontDialog" type="FileDialog" parent="." unique_id=1884380998]
+title = "Open a File"
+file_mode = 0
+access = 2
+use_native_dialog = true
+
+[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer2/Browse" to="JarDialog" method="show"]
+[connection signal="pressed" from="MarginContainer/VBoxContainer/OpenUserFolder" to="." method="OpenUserFolder"]
+[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer/Browse" to="SoundFontDialog" method="show"]
+[connection signal="pressed" from="MarginContainer/VBoxContainer/PlayButton" to="." method="Play"]
+[connection signal="file_selected" from="JarDialog" to="MarginContainer/VBoxContainer/HBoxContainer2/JarPath" method="set_text"]
+[connection signal="file_selected" from="SoundFontDialog" to="MarginContainer/VBoxContainer/HBoxContainer/SoundFontPath" method="set_text"]

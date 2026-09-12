@@ -91,7 +91,7 @@ public class GodotGraphics : Graphics
     public override void FillRect(int x, int y, int width, int height, Color32 color)
     {
         Begin();
-        Gd.RenderingServer.CanvasItemAddRect(_canvasItem, new Gd.Rect2(x, y, width, height), GdColor(color));
+        Gd.RenderingServer.CanvasItemAddRect(_canvasItem, new Gd.Rect2(x, y, width, height).Abs(), GdColor(color));
     }
     
     public override void FillArc(int x, int y, int width, int height, int startAngle, int arcAngle, Color32 color)
