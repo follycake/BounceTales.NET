@@ -144,7 +144,7 @@ public sealed class BounceObject : GameObject
     // State - collision
     private int collPointCount;
 
-    private readonly bool[] collUnknown0 = new bool[MAX_COLLISION_POINTS];
+    private readonly bool[] collUnk0 = new bool[MAX_COLLISION_POINTS];
 
     private readonly Vector2I[] collPoints = new Vector2I[MAX_COLLISION_POINTS];
     private readonly Vector2I[] collUnknown1 = new Vector2I[MAX_COLLISION_POINTS];
@@ -460,8 +460,8 @@ public sealed class BounceObject : GameObject
                 for (int collIndex = 0; collIndex < collPointCount; collIndex++)
                 {
                     Vector2I dist = collPoints[collIndex] - RenderCalcMatrix.Translation;
-                    long distance = dist.X * dist.X + dist.Y * dist.Y;
-                    if (collUnknown0[collIndex])
+                    long distance = (long)dist.X * dist.X + (long)dist.Y * dist.Y;
+                    if (collUnk0[collIndex])
                         distance = -distance;
                     if (distance > 0x271000000000L)
                         Debug.WriteLine("Sanity check failed! Found collision is too far, distance: " + Math.Sqrt(distance) / 65536.0d);
@@ -544,7 +544,7 @@ public sealed class BounceObject : GameObject
         {
             collPoints[collPointCount].X = RenderCalcMatrix.TranslationX + (int)(x * (long)t >> 16);
             collPoints[collPointCount].Y = RenderCalcMatrix.TranslationY + (int)(y * (long)t >> 16);
-            collUnknown0[collPointCount] = z;
+            collUnk0[collPointCount] = z;
 
             vectorMulRsl = geometry.RenderCalcMatrix.MulDirection(x2, y2);
             lastVectorMul = vectorMulRsl;
@@ -558,11 +558,9 @@ public sealed class BounceObject : GameObject
             throw new Exception("t < 0, t: " + t);
         else
         {
-            vectorMulRsl = geometry.RenderCalcMatrix.MulVector(aabbRay);
-            collPoints[collPointCount] = vectorMulRsl;
-            collUnknown0[collPointCount] = z;
-            vectorMulRsl = geometry.RenderCalcMatrix.MulVector(x2, y2);
-            collUnknown1[collPointCount] = vectorMulRsl;
+            collPoints[collPointCount] = geometry.RenderCalcMatrix.MulVector(aabbRay);
+            collUnk0[collPointCount] = z;
+            collUnknown1[collPointCount] = geometry.RenderCalcMatrix.MulVector(x2, y2);
         }
 
         vectorMulRsl = geometry.RenderCalcMatrix.MulVector(aabbRay);
