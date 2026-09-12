@@ -1,4 +1,5 @@
-﻿using BounceTales.Microedition.Lcdui;
+﻿using System.Numerics;
+using BounceTales.Microedition.Lcdui;
 
 namespace BounceTales;
 
@@ -118,16 +119,14 @@ public sealed class CannonObject() : GameObject(TYPEID)
             if (animCountdown <= FIRING_FRAME_LENGTH && BounceGame.CurrentControllerState == BounceGame.Controller.CANNON)
             {
                 BounceObject bounce = (BounceObject)GetObjectRoot().SearchByObjId(bounceObjId);
-                bounce.LastXVelocity = 0.0f;
-                bounce.LastYVelocity = 0.0f;
-                bounce.CurXVelocity = power * LocalObjectMatrix.M00 >> 12;
-                bounce.CurYVelocity = power * LocalObjectMatrix.M10 >> 12;
+                bounce.LastVelocity = Vector2.Zero;
+                bounce.CurVelocity.X = power * LocalObjectMatrix.M00 >> 12;
+                bounce.CurVelocity.Y = power * LocalObjectMatrix.M10 >> 12;
                 bounce.IsGrounded = false;
                 bounce.ReqSkipAccelStretch = true;
                 bounce.EnablePhysics = true;
                 bounce.IsVisible = true;
-                bounce.TorqueX = 0.0f;
-                bounce.TorqueY = 0.0f;
+                bounce.Torque = Vector2.Zero;
                 BounceGame.CurrentControllerState = BounceGame.Controller.NORMAL;
                 reloadCooldown = 500;
                 LoadObjectMatrixToTarget(out Matrix tmpObjMatrix);

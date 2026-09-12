@@ -1,4 +1,5 @@
-﻿using BounceTales.Microedition.Lcdui;
+﻿using System.Numerics;
+using BounceTales.Microedition.Lcdui;
 
 namespace BounceTales;
 
@@ -66,15 +67,15 @@ public sealed class EnemyObject() : GameObject(TYPEID)
 
     private static void BounceAwayPlayerOnStomp()
     {
-        if (BounceGame.BounceObj.CurYVelocity < 0.0f)
+        if (BounceGame.BounceObj.CurVelocity.Y < 0.0f)
         {
-            BounceGame.BounceObj.CurYVelocity = -BounceGame.BounceObj.CurYVelocity * 0.5f;
-            BounceGame.BounceObj.CurXVelocity *= 0.7f;
+            BounceGame.BounceObj.CurVelocity.Y = -BounceGame.BounceObj.CurVelocity.Y * 0.5f;
+            BounceGame.BounceObj.CurVelocity.X *= 0.7f;
         }
         else
         {
-            BounceGame.BounceObj.CurXVelocity = -BounceGame.BounceObj.CurXVelocity * 0.5f;
-            BounceGame.BounceObj.CurYVelocity *= 0.7f;
+            BounceGame.BounceObj.CurVelocity.X = -BounceGame.BounceObj.CurVelocity.X * 0.5f;
+            BounceGame.BounceObj.CurVelocity.Y *= 0.7f;
         }
     }
 
@@ -167,26 +168,19 @@ public sealed class EnemyObject() : GameObject(TYPEID)
         {
             rechargeTimer = 500;
             if (myX < bounceX)
-            {
-                BounceGame.BounceObj.PushX += 200.0f;
-                BounceGame.BounceObj.PushY += 400.0f;
-            }
+                BounceGame.BounceObj.Push.X += 200.0f;
             else
-            {
-                BounceGame.BounceObj.PushX -= 200.0f;
-                BounceGame.BounceObj.PushY += 400.0f;
-            }
-            BounceGame.BounceObj.CurXVelocity = 0.0f;
-            BounceGame.BounceObj.CurYVelocity = 0.0f;
+                BounceGame.BounceObj.Push.X -= 200.0f;
+            BounceGame.BounceObj.Push.Y += 400.0f;
+            BounceGame.BounceObj.CurVelocity = Vector2.Zero;
         }
         else if (propelType == 1)
         {
             if (myX < bounceX)
-                BounceGame.BounceObj.PushX += 100.0f;
+                BounceGame.BounceObj.Push.X += 100.0f;
             else
-                BounceGame.BounceObj.PushX -= 100.0f;
-            BounceGame.BounceObj.CurXVelocity = 0.0f;
-            BounceGame.BounceObj.CurYVelocity = 0.0f;
+                BounceGame.BounceObj.Push.X -= 100.0f;
+            BounceGame.BounceObj.CurVelocity = Vector2.Zero;
         }
     }
 
@@ -199,11 +193,10 @@ public sealed class EnemyObject() : GameObject(TYPEID)
                 {
                     LoadObjectMatrixToTarget(out Matrix tmpObjMatrix);
                     if (tmpObjMatrix.TranslationX < BounceGame.BounceObj.LocalObjectMatrix.TranslationX)
-                        BounceGame.BounceObj.PushX += 500.0f;
+                        BounceGame.BounceObj.Push.X += 500.0f;
                     else
-                        BounceGame.BounceObj.PushX -= 500.0f;
-                    BounceGame.BounceObj.CurXVelocity = 0.0f;
-                    BounceGame.BounceObj.CurYVelocity = 0.0f;
+                        BounceGame.BounceObj.Push.X -= 500.0f;
+                    BounceGame.BounceObj.CurVelocity = Vector2.Zero;
                     rechargeTimer = 500;
                 }
                 break;

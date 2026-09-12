@@ -28,9 +28,8 @@ public class GameObject
     public static GameObject CameraTarget;
     public static int CameraBounceFactor;
     public static int CameraStabilizeSpeed;
-
-    public static int CameraVelocityX;
-    public static int CameraVelocityY;
+    
+    public static Vector2I CameraVelocity;
     private static int cameraTimer;
 
     // Global state - matrices
@@ -334,58 +333,37 @@ public class GameObject
 
     public static void UpdateCamera(bool instant)
     {
-        int i;
-        int i2;
+        Vector2I v1;
         int delta = GameRuntime.UpdateDelta;
         CameraTarget.LoadObjectMatrixToTarget(out Matrix tmpObjMatrix);
         if (delta != 0)
-        {
-            i2 = (tmpObjMatrix.TranslationX - CameraTarget.RenderCalcMatrix.TranslationX) / delta;
-            i = (tmpObjMatrix.TranslationY - CameraTarget.RenderCalcMatrix.TranslationY) / delta;
-        }
+            v1 = (tmpObjMatrix.Translation - CameraTarget.RenderCalcMatrix.Translation) / delta;
         else
-        {
-            i = 0;
-            i2 = 0;
-        }
+            v1 = Vector2I.Zero;
 
-        int i5 = i2 << 7;
-        int i6 = -i << 7;
-        int i7 = tmpObjMatrix.TranslationX;
-        int i8 = tmpObjMatrix.TranslationY;
+        Vector2I v2 = new Vector2I(v1.X, -v1.Y) << 7;
+        Vector2I v3 = tmpObjMatrix.Translation;
 
         ScreenSpaceMatrix.Invert(out Matrix temp);
-        Vector2I vectorMulRsl = temp.MulDirection(0, -GameRuntime.CurrentHeight / 5 << 16);
-        int i9 = vectorMulRsl.X;
-        int i10 = vectorMulRsl.Y;
-
-        vectorMulRsl = temp.MulDirection(i5, i6);
-        int cameraTx = vectorMulRsl.X + i5 + i7 + i9;
-        int cameraTy = vectorMulRsl.Y + i6 + i8 + i10;
+        Vector2I v4 = temp.MulDirection(0, -GameRuntime.CurrentHeight / 5 << 16);
+        
+        Vector2I cameraT = temp.MulDirection(v2) + v2 + v3 + v4;
         if (instant)
-        {
-            CameraMatrix.TranslationX = cameraTx;
-            CameraMatrix.TranslationY = cameraTy;
-        }
+            CameraMatrix.Translation = cameraT;
         else
         {
-            int diffX = cameraTx - CameraMatrix.TranslationX;
-            int diffY = cameraTy - CameraMatrix.TranslationY;
-            if (Math.Abs(diffX) < 327680)
-                diffX = 0;
-            if (Math.Abs(diffY) < 327680)
-                diffY = 0;
+            Vector2I diff = cameraT - CameraMatrix.Translation;
+            if (Math.Abs(diff.X) < 327680)
+                diff.X = 0;
+            if (Math.Abs(diff.Y) < 327680)
+                diff.Y = 0;
             cameraTimer += delta;
-            CameraMatrix.TranslationX += CameraVelocityX * delta; // Not accurate but reduces stuttering.
-            CameraMatrix.TranslationY += CameraVelocityY * delta;
+            CameraMatrix.Translation += CameraVelocity * delta; // Not accurate but reduces stuttering.
             while (cameraTimer >= 15)
             {
-                //CameraMatrix.TranslationX += CameraVelocityX * 15;
-                //CameraMatrix.TranslationY += CameraVelocityY * 15;
-                CameraVelocityX += CameraBounceFactor * 15 * (diffX >> 6) >> 14;
-                CameraVelocityY += CameraBounceFactor * 15 * (diffY >> 6) >> 14;
-                CameraVelocityX -= CameraStabilizeSpeed * 15 * CameraVelocityX >> 14;
-                CameraVelocityY -= CameraStabilizeSpeed * 15 * CameraVelocityY >> 14;
+                //CameraMatrix.Translation += CameraVelocity * 15;
+                CameraVelocity += CameraBounceFactor * 15 * (diff >> 6) >> 14;
+                CameraVelocity -= CameraStabilizeSpeed * 15 * CameraVelocity >> 14;
                 cameraTimer -= 15;
             }
         }
@@ -393,8 +371,7 @@ public class GameObject
 
     public static void SnapCameraToTarget()
     {
-        CameraVelocityX = 0;
-        CameraVelocityY = 0;
+        CameraVelocity = Vector2I.Zero;
         UpdateCamera(true);
     }
 

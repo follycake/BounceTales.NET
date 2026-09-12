@@ -1,4 +1,5 @@
-﻿using BounceTales.Microedition.Lcdui;
+﻿using System.Numerics;
+using BounceTales.Microedition.Lcdui;
 
 namespace BounceTales;
 
@@ -68,8 +69,7 @@ public sealed class TrampolineObject() : GameObject(TYPEID)
             ReleaseJumper();
         jumper = j;
         jumper.EnablePhysics = false;
-        jumper.CurXVelocity = 0.0f;
-        jumper.CurYVelocity = 0.0f;
+        jumper.CurVelocity = Vector2.Zero;
     }
 
     private void ReleaseJumper()
@@ -77,8 +77,7 @@ public sealed class TrampolineObject() : GameObject(TYPEID)
         if (jumper != null)
         {
             jumper.EnablePhysics = true;
-            jumper.TorqueX = 0.0f;
-            jumper.TorqueY = 0.0f;
+            jumper.Torque = Vector2.Zero;
             jumper.ReqSkipAccelStretch = true;
             if (jumper.Equals(BounceGame.BounceObj))
                 BounceGame.CurrentControllerState = BounceGame.Controller.NORMAL;
@@ -105,7 +104,7 @@ public sealed class TrampolineObject() : GameObject(TYPEID)
                 if (!isJumpFinished)
                 {
                     isJumpFinished = true;
-                    jumper.CurYVelocity = calcPush;
+                    jumper.CurVelocity.Y = calcPush;
                     ReleaseJumper();
                 }
                 animFrame = frameCount * progress / period;

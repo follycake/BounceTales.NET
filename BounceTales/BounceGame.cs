@@ -1727,8 +1727,7 @@ public sealed class BounceGame
                 collider.CheckCollisions(RootLevelObj);
             if (ReqCameraSnap)
             {
-                GameObject.CameraVelocityX = 0;
-                GameObject.CameraVelocityY = 0;
+                GameObject.CameraVelocity = Vector2I.Zero;
                 GameObject.UpdateCamera(true);
                 ReqCameraSnap = false;
             }
@@ -1820,9 +1819,9 @@ public sealed class BounceGame
                         if (EggCount == bonusLevelEggLimit && IsBonusLevel(CurrentLevel))
                             CurrentPlayerState = PlayerState.WIN;
                         EventObject.EventVars[3] = (int)BounceObj.BallForme;
-                        EventObject.EventVars[4] = (int)BounceObj.CurVelocity;
-                        EventObject.EventVars[5] = (int)BounceObj.CurXVelocity;
-                        EventObject.EventVars[6] = (int)BounceObj.CurYVelocity;
+                        EventObject.EventVars[4] = (int)BounceObj.CurSpeed;
+                        EventObject.EventVars[5] = (int)BounceObj.CurVelocity.X;
+                        EventObject.EventVars[6] = (int)BounceObj.CurVelocity.Y;
                         if (stolenColorsAnimationCountdown > 0)
                         {
                             stolenColorsAnimationCountdown -= GameRuntime.UpdateDelta;

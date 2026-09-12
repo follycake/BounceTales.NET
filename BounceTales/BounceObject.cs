@@ -105,27 +105,21 @@ public sealed class BounceObject : GameObject
 
     private float airTimeCounter;
 
-    public float CurXVelocity;
-    public float CurYVelocity;
-    public float CurVelocity;
+    public Vector2 CurVelocity;
+    public float CurSpeed;
 
-    public float LastXVelocity;
-    public float LastYVelocity;
+    public Vector2 LastVelocity;
 
     private float slopeSinAbs;
     private float slopeCosAbs;
 
     private const float torqueFalloff = 0.5f;
 
-    public float TorqueX;
-    public float TorqueY;
+    public Vector2 Torque;
     private float rotation;
 
-    public float GravityX;
-    public float GravityY;
-
-    public float PushX;
-    public float PushY;
+    public Vector2 Gravity;
+    public Vector2 Push;
 
     public Forme BallForme = 0;
 
@@ -191,8 +185,7 @@ public sealed class BounceObject : GameObject
         ReqSkipAccelStretch = true;
         if (isPlayer)
         {
-            LastXVelocity = 0.0f;
-            LastYVelocity = 0.0f;
+            LastVelocity = Vector2.Zero;
             for (int i3 = 0; i3 < 4; i3++)
             {
                 reqStretchMagnitudes[i3] = 0;
@@ -353,7 +346,7 @@ public sealed class BounceObject : GameObject
                             WaterObject water = (WaterObject)other;
                             int waterMinX = water.area.MinX << 16;
                             if (AABBIntersectRay(waterMinX, water.area.MinY << 16, (water.area.MaxX << 16) - waterMinX, 0, relToOther.X, relToOther.Y, newRelToOther.X, newRelToOther.Y, 0))
-                                water.OnBounceSurfaceContact(aabbRayWeight, CurYVelocity, BALL_DIMENS[(int)BallForme], this);
+                                water.OnBounceSurfaceContact(aabbRayWeight, CurVelocity.Y, BALL_DIMENS[(int)BallForme], this);
                             if (newRelToOther.Y - ballDiameter < water.surfaceY)
                                 water.UpdateBounceSwim(newRelToOther.X, newRelToOther.Y - ballDiameter, this);
                             other = other.GetNextNodeDescendToChildren(startNode);
@@ -378,7 +371,7 @@ public sealed class BounceObject : GameObject
                                 0
                             ))
                             {
-                                float yvel = CurYVelocity;
+                                float yvel = CurVelocity.Y;
                                 if (yvel < 0.0f)
                                 {
                                     int yvelLim = -(int)yvel;
@@ -489,13 +482,12 @@ public sealed class BounceObject : GameObject
                     float f21 = v5.X * slope.X + v5.Y * slope.Y;
                     Vector2 v7 = f21 * slope;
                     Vector2 v8 = v3 + point + (v5 - v7 - v7 * RICOCHET_FACTOR[(int)BallForme]) + 0.01f * slope;
-                    float f26 = CurXVelocity * slope.X + CurYVelocity * slope.Y;
+                    float f26 = CurVelocity.X * slope.X + CurVelocity.Y * slope.Y;
                     Vector2 v9 = f26 * slope;
-                    Vector2 v10 = new Vector2(CurXVelocity, CurYVelocity) - v9 - v9 * RICOCHET_FACTOR[(int)BallForme];
+                    Vector2 v10 = CurVelocity - v9 - v9 * RICOCHET_FACTOR[(int)BallForme];
                     float f31 = v4.X * slope.X + v4.Y * slope.Y;
-                    CurXVelocity = v10.X + f31 * slope.X;
-                    CurYVelocity = v10.Y + f31 * slope.Y;
-                    Vector2 v11 = new Vector2(CurXVelocity, CurYVelocity) - v4;
+                    CurVelocity = v10 + f31 * slope;
+                    Vector2 v11 = CurVelocity - v4;
                     float sqrt3 = v11.Length();
                     Vector2 v12 = sqrt3 != 0.0f ? v11 / sqrt3 : Vector2.Zero;
                     float f36 = -(0.0f * slope.X + BASE_GRAVITY_Y * slope.Y) * FRICTION[(int)BallForme] * GRAVITY[(int)BallForme];
@@ -503,17 +495,10 @@ public sealed class BounceObject : GameObject
                     float f39 = f3 * GRAVITY[(int)BallForme];
                     Vector2 v14 = v11 * f39;
                     if (v14.LengthSquared() < v13.LengthSquared())
-                    {
-                        GravityX -= v14.X;
-                        GravityY -= v14.Y;
-                    }
+                        Gravity -= v14;
                     else
-                    {
-                        GravityX -= v13.X;
-                        GravityY -= v13.Y;
-                    }
-                    TorqueX = TorqueX * (1.0f - torqueFalloff) + torqueFalloff * v11.X;
-                    TorqueY = TorqueY * (1.0f - torqueFalloff) + torqueFalloff * v11.Y;
+                        Gravity -= v13;
+                    Torque = Torque * (1.0f - torqueFalloff) + torqueFalloff * v11;
                     airTimeCounter = 0.0f;
                     IsGrounded = true;
                     slopeSinAbs = slope.X;
@@ -925,14 +910,10 @@ public sealed class BounceObject : GameObject
 
     public void ResetPhysics()
     {
-        CurXVelocity = 0.0f;
-        CurYVelocity = 0.0f;
-        PushX = 0.0f;
-        PushY = 0.0f;
-        GravityX = 0.0f;
-        GravityY = 0.0f;
-        TorqueX = 0.0f;
-        TorqueY = 0.0f;
+        CurVelocity = Vector2.Zero;
+        Push = Vector2.Zero;
+        Gravity = Vector2.Zero;
+        Torque = Vector2.Zero;
     }
 
     public override void UpdatePhysics()
@@ -942,69 +923,60 @@ public sealed class BounceObject : GameObject
         ObjectMatrixIsDirty = true;
         if (EnablePhysics)
         {
-            GravityX += BASE_GRAVITY_X * GRAVITY[(int)BallForme];
-            GravityY += BASE_GRAVITY_Y * GRAVITY[(int)BallForme];
+            Gravity.X += BASE_GRAVITY_X * GRAVITY[(int)BallForme];
+            Gravity.Y += BASE_GRAVITY_Y * GRAVITY[(int)BallForme];
             if (isPlayer)
             {
                 if (!ReqSkipAccelStretch)
                 {
-                    float xaccel = CurXVelocity - LastXVelocity;
-                    float yaccel = CurYVelocity - LastYVelocity;
-                    if (xaccel > 0.0f)
-                        StretchInDirection(3, ((int)xaccel >> 2 << 1) / 3);
+                    Vector2 accel = CurVelocity - LastVelocity;
+                    if (accel.X > 0.0f)
+                        StretchInDirection(3, ((int)accel.X >> 2 << 1) / 3);
                     else
-                        StretchInDirection(2, (-(int)xaccel >> 2 << 1) / 3);
-                    if (yaccel > 0.0f)
-                        StretchInDirection(1, ((int)yaccel >> 2 << 1) / 3);
+                        StretchInDirection(2, (-(int)accel.X >> 2 << 1) / 3);
+                    if (accel.Y > 0.0f)
+                        StretchInDirection(1, ((int)accel.Y >> 2 << 1) / 3);
                     else
-                        StretchInDirection(0, (-(int)yaccel >> 2 << 1) / 3);
+                        StretchInDirection(0, (-(int)accel.Y >> 2 << 1) / 3);
                 }
                 ReqSkipAccelStretch = false;
             }
             float motionDelta = GameRuntime.UpdateDelta * 0.001f;
             if (isPlayer)
-            {
-                LastXVelocity = CurXVelocity;
-                LastYVelocity = CurYVelocity;
-            }
+                LastVelocity = CurVelocity;
             float invGravity = 1.0f / GRAVITY[(int)BallForme];
-            CurXVelocity += GravityX * invGravity * motionDelta;
-            CurYVelocity += GravityY * invGravity * motionDelta;
-            CurXVelocity += PushX * invGravity;
-            CurYVelocity += PushY * invGravity;
-            LocalObjectMatrix.TranslationX += LP32.FP32ToLP32(CurXVelocity * motionDelta);
-            LocalObjectMatrix.TranslationY += LP32.FP32ToLP32(CurYVelocity * motionDelta);
-            GravityX = 0.0f;
-            GravityY = 0.0f;
-            PushX = 0.0f;
-            PushY = 0.0f;
-            float f7 = TorqueX * slopeSinAbs + TorqueY * slopeCosAbs;
+            CurVelocity += Gravity * invGravity * motionDelta;
+            CurVelocity += Push * invGravity;
+            LocalObjectMatrix.TranslationX += LP32.FP32ToLP32(CurVelocity.X * motionDelta);
+            LocalObjectMatrix.TranslationY += LP32.FP32ToLP32(CurVelocity.Y * motionDelta);
+            Gravity = Vector2.Zero;
+            Push = Vector2.Zero;
+            float f7 = Torque.X * slopeSinAbs + Torque.Y * slopeCosAbs;
             float f8 = slopeSinAbs * f7;
             float f9 = slopeCosAbs * f7;
             float f;
             float f2;
-            if (slopeSinAbs * TorqueX + slopeCosAbs * TorqueY >= 0.0f)
+            if (slopeSinAbs * Torque.X + slopeCosAbs * Torque.Y >= 0.0f)
             {
-                f = TorqueX - f8;
-                f2 = TorqueY - f9;
+                f = Torque.X - f8;
+                f2 = Torque.Y - f9;
             }
             else
             {
-                f = TorqueX + f8;
-                f2 = TorqueY + f9;
+                f = Torque.X + f8;
+                f2 = Torque.Y + f9;
             }
             float sqrt = motionDelta * ((float)Math.Sqrt(f * f + f2 * f2) / BALL_DIMENS[(int)BallForme]);
             rotation += f2 * slopeSinAbs - f * slopeCosAbs > 0.0f ? -sqrt : sqrt;
             airTimeCounter += GameRuntime.UpdateDelta * 0.001f;
             if (airTimeCounter > 0.25f)
                 IsGrounded = false;
-            CurVelocity = (float)Math.Sqrt(CurXVelocity * CurXVelocity + CurYVelocity * CurYVelocity);
-            if (CurVelocity > 999.0f) // terminal velocity
+            CurSpeed = CurVelocity.Length();
+            if (CurSpeed > 999.0f) // terminal velocity
             {
-                float invVelocity = 999.0f / CurVelocity;
-                CurXVelocity *= invVelocity;
-                CurYVelocity *= invVelocity;
-                CurVelocity = 999.0f;
+                float invVelocity = 999.0f / CurSpeed;
+                CurVelocity *= invVelocity;
+                CurSpeed = 999.0f;
             }
             if (isPlayer)
             {
@@ -1050,7 +1022,7 @@ public sealed class BounceObject : GameObject
                         }
                     }
                 }
-                else if (BounceGame.CurrentPlayerState == BounceGame.PlayerState.PLAY && BounceGame.CurrentControllerState == BounceGame.Controller.NORMAL && Math.Abs(CurXVelocity) < 40.0f && Math.Abs(CurYVelocity) < 40.0f)
+                else if (BounceGame.CurrentPlayerState == BounceGame.PlayerState.PLAY && BounceGame.CurrentControllerState == BounceGame.Controller.NORMAL && Math.Abs(CurVelocity.X) < 40.0f && Math.Abs(CurVelocity.Y) < 40.0f)
                 {
                     IdleAnimStartTimer -= GameRuntime.UpdateDelta;
                     if (IdleAnimStartTimer <= 0)
@@ -1060,7 +1032,7 @@ public sealed class BounceObject : GameObject
                         IdleAnimStartTimer = 3000;
                     }
                 }
-                if (Math.Abs(CurXVelocity) >= 40.0f || Math.Abs(CurYVelocity) >= 40.0f)
+                if (Math.Abs(CurVelocity.X) >= 40.0f || Math.Abs(CurVelocity.Y) >= 40.0f)
                 {
                     if (EyeFrame != 1)
                         EyeFrame = 0;
@@ -1098,9 +1070,9 @@ public sealed class BounceObject : GameObject
         if (slopeCosAbs > MAX_JUMP_SLOPE_INV[(int)BallForme] && IsGrounded)
         {
             if (small)
-                PushY += JUMP_ACCELERATION[(int)BallForme] / 2.0f;
+                Push.Y += JUMP_ACCELERATION[(int)BallForme] / 2.0f;
             else
-                PushY += JUMP_ACCELERATION[(int)BallForme];
+                Push.Y += JUMP_ACCELERATION[(int)BallForme];
             IsGrounded = false;
             if (isPlayer)
             {
@@ -1125,11 +1097,11 @@ public sealed class BounceObject : GameObject
             speedBoost = 50.0f;
         if (IsGrounded)
         {
-            if (CurXVelocity > -MAXIMUM_MOVEMENT_SPEED[(int)BallForme] - speedBoost)
-                GravityX -= speedBoost + MOVEMENT_ACCELERATION[(int)BallForme];
+            if (CurVelocity.X > -MAXIMUM_MOVEMENT_SPEED[(int)BallForme] - speedBoost)
+                Gravity.X -= speedBoost + MOVEMENT_ACCELERATION[(int)BallForme];
         }
-        else if (CurXVelocity > -MAXIMUM_MOVEMENT_SPEED[(int)BallForme] - speedBoost)
-            GravityX -= (speedBoost + MOVEMENT_ACCELERATION[(int)BallForme]) / MIDAIR_MOVEMENT_SUPPRESSION[(int)BallForme];
+        else if (CurVelocity.X > -MAXIMUM_MOVEMENT_SPEED[(int)BallForme] - speedBoost)
+            Gravity.X -= (speedBoost + MOVEMENT_ACCELERATION[(int)BallForme]) / MIDAIR_MOVEMENT_SUPPRESSION[(int)BallForme];
     }
 
     public void MoveRight()
@@ -1139,11 +1111,11 @@ public sealed class BounceObject : GameObject
             speedBoost = 50.0f;
         if (IsGrounded)
         {
-            if (CurXVelocity < MAXIMUM_MOVEMENT_SPEED[(int)BallForme] + speedBoost)
-                GravityX += speedBoost + MOVEMENT_ACCELERATION[(int)BallForme];
+            if (CurVelocity.X < MAXIMUM_MOVEMENT_SPEED[(int)BallForme] + speedBoost)
+                Gravity.X += speedBoost + MOVEMENT_ACCELERATION[(int)BallForme];
         }
-        else if (CurXVelocity < MAXIMUM_MOVEMENT_SPEED[(int)BallForme] + speedBoost)
-            GravityX += (speedBoost + MOVEMENT_ACCELERATION[(int)BallForme]) / MIDAIR_MOVEMENT_SUPPRESSION[(int)BallForme];
+        else if (CurVelocity.X < MAXIMUM_MOVEMENT_SPEED[(int)BallForme] + speedBoost)
+            Gravity.X += (speedBoost + MOVEMENT_ACCELERATION[(int)BallForme]) / MIDAIR_MOVEMENT_SUPPRESSION[(int)BallForme];
     }
 
     public void CycleForme()

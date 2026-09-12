@@ -444,8 +444,8 @@ public sealed class EventObject() : GameObject(TYPEID)
                 if (pushTarget.GetObjType() == BounceObject.TYPEID)
                 {
                     BounceObject bounce = (BounceObject)pushTarget;
-                    bounce.PushX += ReadShort(evCmd, 3);
-                    bounce.PushY += ReadShort(evCmd, 5);
+                    bounce.Push.X += ReadShort(evCmd, 3);
+                    bounce.Push.Y += ReadShort(evCmd, 5);
                 }
                 return true;
             case EventCommand.GRAVITATE:
@@ -453,8 +453,8 @@ public sealed class EventObject() : GameObject(TYPEID)
                 if (gravityTarget.GetObjType() == BounceObject.TYPEID)
                 {
                     BounceObject bounce = (BounceObject)gravityTarget;
-                    bounce.GravityX += ReadShort(evCmd, 3);
-                    bounce.GravityY += ReadShort(evCmd, 5);
+                    bounce.Gravity.X += ReadShort(evCmd, 3);
+                    bounce.Gravity.Y += ReadShort(evCmd, 5);
                 }
                 return true;
             case EventCommand.ACCELERATE:
@@ -462,8 +462,8 @@ public sealed class EventObject() : GameObject(TYPEID)
                 if (accelTarget.GetObjType() == BounceObject.TYPEID)
                 {
                     BounceObject bounce = (BounceObject)accelTarget;
-                    bounce.CurXVelocity += ReadShort(evCmd, 3);
-                    bounce.CurYVelocity += ReadShort(evCmd, 5);
+                    bounce.CurVelocity.X += ReadShort(evCmd, 3);
+                    bounce.CurVelocity.Y += ReadShort(evCmd, 5);
                 }
                 return true;
             case EventCommand.OBJ_SET_FLAGS:

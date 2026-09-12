@@ -41,6 +41,8 @@ public struct Vector2I(int x, int y) : IEquatable<Vector2I>
     public static Vector2I operator +(Vector2I a, Vector2I b) => new(a.X + b.X, a.Y + b.Y);
     public static Vector2I operator -(Vector2I a, Vector2I b) => new(a.X - b.X, a.Y - b.Y);
     public static Vector2I operator *(Vector2I a, int b) => new(a.X * b, a.Y * b);
+    public static Vector2I operator *(int a, Vector2I b) => b * a;
+    public static Vector2I operator /(Vector2I a, int b) => new(a.X / b, a.Y / b);
 
     public static Vector2 operator *(Vector2I a, float b) => new(a.X * b, a.Y * b);
     public static implicit operator Vector2(Vector2I a) => new(a.X, a.Y);

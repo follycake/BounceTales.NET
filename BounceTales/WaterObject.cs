@@ -367,8 +367,7 @@ public sealed class WaterObject() : GameObject(TYPEID)
                 InsertSplash(i3, i4, -1, 20480, length - (radius << 2), 0);
                 InsertSplash(i3, i4, 1, 20480, length + (radius << 2), 0);
             }
-            bounce.TorqueX /= 3.0f;
-            bounce.TorqueY /= 3.0f;
+            bounce.Torque /= 3.0f;
             if (region == Region.SURFACE)
             {
                 LoadObjectMatrixToTarget(out Matrix tmpObjMatrix);
@@ -410,45 +409,43 @@ public sealed class WaterObject() : GameObject(TYPEID)
             // force recalc only one water block per update
             float xWeight = (x - BBox.MinX) / (float)(BBox.MaxX - BBox.MinX);
             float yWeight = (y - BBox.MinY) / (float)(BBox.MaxY - BBox.MinY);
-            int antiGravityX;
-            int antiGravityY;
+            Vector2I antiGravity;
 
             // This lerp may not seem very smart at first glance, but it reduces the number of floating point multiplications, which is actually great
             if (gravityXLeft < gravityXRight)
-                antiGravityX = (int)(xWeight * (gravityXRight - gravityXLeft)) + gravityXLeft;
+                antiGravity.X = (int)(xWeight * (gravityXRight - gravityXLeft)) + gravityXLeft;
             else
-                antiGravityX = (int)((1.0f - xWeight) * (gravityXLeft - gravityXRight)) + gravityXRight;
+                antiGravity.X = (int)((1.0f - xWeight) * (gravityXLeft - gravityXRight)) + gravityXRight;
 
             if (gravityYBottom < gravityYTop)
-                antiGravityY = (int)(yWeight * (gravityYTop - gravityYBottom)) + gravityYBottom;
+                antiGravity.Y = (int)(yWeight * (gravityYTop - gravityYBottom)) + gravityYBottom;
             else
-                antiGravityY = (int)((1.0f - yWeight) * (gravityYBottom - gravityYTop)) + gravityYTop;
-            bounce.GravityX += antiGravityX << 5;
-            bounce.GravityY += antiGravityY << 5;
+                antiGravity.Y = (int)((1.0f - yWeight) * (gravityYBottom - gravityYTop)) + gravityYTop;
+            bounce.Gravity += antiGravity << 5;
 
-            if (bounce.TorqueX > 0.0f)
+            if (bounce.Torque.X > 0.0f)
             {
-                bounce.TorqueX -= GameRuntime.UpdateDelta * bounce.TorqueX / 400f;
-                if (bounce.TorqueX < 0.0f)
-                    bounce.TorqueX = 0.0f;
+                bounce.Torque.X -= GameRuntime.UpdateDelta * bounce.Torque.X / 400f;
+                if (bounce.Torque.X < 0.0f)
+                    bounce.Torque.X = 0.0f;
             }
-            else if (bounce.TorqueX < 0.0f)
+            else if (bounce.Torque.X < 0.0f)
             {
-                bounce.TorqueX -= GameRuntime.UpdateDelta * bounce.TorqueX / 400f;
-                if (bounce.TorqueX > 0.0f)
-                    bounce.TorqueX = 0.0f;
+                bounce.Torque.X -= GameRuntime.UpdateDelta * bounce.Torque.X / 400f;
+                if (bounce.Torque.X > 0.0f)
+                    bounce.Torque.X = 0.0f;
             }
-            if (bounce.TorqueY > 0.0f)
+            if (bounce.Torque.Y > 0.0f)
             {
-                bounce.TorqueY -= GameRuntime.UpdateDelta * bounce.TorqueY / 400f;
-                if (bounce.TorqueY < 0.0f)
-                    bounce.TorqueY = 0.0f;
+                bounce.Torque.Y -= GameRuntime.UpdateDelta * bounce.Torque.Y / 400f;
+                if (bounce.Torque.Y < 0.0f)
+                    bounce.Torque.Y = 0.0f;
             }
-            else if (bounce.TorqueY < 0.0f)
+            else if (bounce.Torque.Y < 0.0f)
             {
-                bounce.TorqueY -= GameRuntime.UpdateDelta * bounce.TorqueY / 400f;
-                if (bounce.TorqueY > 0.0f)
-                    bounce.TorqueY = 0.0f;
+                bounce.Torque.Y -= GameRuntime.UpdateDelta * bounce.Torque.Y / 400f;
+                if (bounce.Torque.Y > 0.0f)
+                    bounce.Torque.Y = 0.0f;
             }
 
             if (IsWater())
@@ -456,30 +453,30 @@ public sealed class WaterObject() : GameObject(TYPEID)
                 float invGravity = 1.0f / BounceObject.GRAVITY[(int)bounce.BallForme];
                 float slowdown = GameRuntime.UpdateDelta * 0.0014f;
 
-                if (bounce.CurXVelocity > 0.0f)
+                if (bounce.CurVelocity.X > 0.0f)
                 {
-                    bounce.CurXVelocity -= bounce.CurXVelocity * invGravity * slowdown;
-                    if (bounce.CurXVelocity < 0.0f)
-                        bounce.CurXVelocity = 0.0f;
+                    bounce.CurVelocity.X -= bounce.CurVelocity.X * invGravity * slowdown;
+                    if (bounce.CurVelocity.X < 0.0f)
+                        bounce.CurVelocity.X = 0.0f;
                 }
                 else
                 {
-                    bounce.CurXVelocity -= bounce.CurXVelocity * invGravity * slowdown;
-                    if (bounce.CurXVelocity > 0.0f)
-                        bounce.CurXVelocity = 0.0f;
+                    bounce.CurVelocity.X -= bounce.CurVelocity.X * invGravity * slowdown;
+                    if (bounce.CurVelocity.X > 0.0f)
+                        bounce.CurVelocity.X = 0.0f;
                 }
 
-                if (bounce.CurYVelocity > 0.0f)
+                if (bounce.CurVelocity.Y > 0.0f)
                 {
-                    bounce.CurYVelocity -= invGravity * bounce.CurYVelocity * slowdown;
-                    if (bounce.CurYVelocity < 0.0f)
-                        bounce.CurYVelocity = 0.0f;
+                    bounce.CurVelocity.Y -= invGravity * bounce.CurVelocity.Y * slowdown;
+                    if (bounce.CurVelocity.Y < 0.0f)
+                        bounce.CurVelocity.Y = 0.0f;
                 }
                 else
                 {
-                    bounce.CurYVelocity -= invGravity * bounce.CurYVelocity * slowdown;
-                    if (bounce.CurYVelocity > 0.0f)
-                        bounce.CurYVelocity = 0.0f;
+                    bounce.CurVelocity.Y -= invGravity * bounce.CurVelocity.Y * slowdown;
+                    if (bounce.CurVelocity.Y > 0.0f)
+                        bounce.CurVelocity.Y = 0.0f;
                 }
 
                 if (bounceBubbleTimer > 150)
