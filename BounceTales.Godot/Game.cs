@@ -70,6 +70,7 @@ public partial class Game : Node
         if (FileAccess.FileExists(SettingsUI.ConfigPath))
         {
             Dictionary data = SettingsUI.LoadSettings();
+            GetNode<Control>("%TouchControls").Visible = data["EnableTouchControls"].AsBool();
             _graphicsProvider.Scale = Vector2.One * data["Scale"].AsInt32();
             systemProvider.Locale = StringManager.LocaleList[data["Locale"].AsInt32()];
             systemProvider.EnableCheats = data["EnableCheats"].AsBool();
@@ -86,6 +87,8 @@ public partial class Game : Node
         }
         else
             UseEmbeddedSoundFont();
+        GetNode<Control>("%Softkeys").CustomMinimumSize = new Vector2(0f, _graphicsProvider.Scale.Y * 16f);
+        
         _synth = new MeltySynthProvider(new Synthesizer(soundFont, (int)((AudioStreamGenerator)musicPlayer.Stream).MixRate));
         _midlet.Audio = _synth;
         _midlet.Start();

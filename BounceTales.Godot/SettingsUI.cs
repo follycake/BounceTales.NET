@@ -9,8 +9,12 @@ public partial class SettingsUI : Control
     public const string ConfigPath = "user://settings.json";
     
 	public override void _Ready()
-	{
-		GetWindow().Title = "Settings";
+    {
+        Window window = GetWindow();
+        window.Title = "Settings";
+        window.Size = new Gd.Vector2I(480, 640);
+        window.MoveToCenter();
+        
         OptionButton locale = GetNode<OptionButton>("%Locale");
         locale.Clear();
         foreach (string str in StringManager.LocaleList)
@@ -72,9 +76,10 @@ public partial class SettingsUI : Control
     public void Play()
     {
         Dictionary data = Save();
-        GetWindow().Size = new Gd.Vector2I(RMIDlet.DefaultScreenWidth, RMIDlet.DefaultScreenHeight) * data["Scale"].AsInt32();
+        Window window = GetWindow();
+        window.Size = new Gd.Vector2I(RMIDlet.DefaultScreenWidth, RMIDlet.DefaultScreenHeight) * data["Scale"].AsInt32();
+        window.MoveToCenter();
         DisplayServer.WindowSetVsyncMode(data["EnableVSync"].AsBool() ? DisplayServer.VSyncMode.Enabled : DisplayServer.VSyncMode.Disabled);
-        GetWindow().MoveToCenter();
         GetTree().ChangeSceneToFile("res://game.tscn");
     }
 

@@ -594,7 +594,8 @@ public class GameObject
             throw new ArgumentException("Can't set parent to self.", nameof(parent));
         Despawn();
         nextNode = parent.firstChildNode;
-        nextNode?.previousNode = this;
+        if (nextNode != null)
+            nextNode.previousNode = this;
         parentNode = parent;
         parentNode.firstChildNode = this;
     }
@@ -606,12 +607,15 @@ public class GameObject
             if (parentNode.firstChildNode == this)
             {
                 parentNode.firstChildNode = nextNode;
-                nextNode?.previousNode = null;
+                if (nextNode != null)
+                    nextNode.previousNode = null;
             }
             else
             {
-                previousNode?.nextNode = nextNode;
-                nextNode?.previousNode = previousNode;
+                if (previousNode != null)
+                    previousNode.nextNode = nextNode;
+                if (nextNode != null)
+                    nextNode.previousNode = previousNode;
             }
             parentNode = null;
             nextNode = null;

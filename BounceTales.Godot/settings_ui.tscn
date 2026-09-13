@@ -89,6 +89,14 @@ layout_mode = 2
 button_pressed = true
 text = "Enable VSync"
 
+[node name="EnableTouchControls" type="CheckButton" parent="MarginContainer/VBoxContainer" unique_id=1045467967 groups=["config"]]
+layout_mode = 2
+text = "Enable Touch Controls"
+
+[node name="Label5" type="Label" parent="MarginContainer/VBoxContainer" unique_id=1066241930]
+layout_mode = 2
+text = "Debug"
+
 [node name="EnableCheats" type="CheckButton" parent="MarginContainer/VBoxContainer" unique_id=37071777 groups=["config"]]
 layout_mode = 2
 text = "Enable Cheats"
