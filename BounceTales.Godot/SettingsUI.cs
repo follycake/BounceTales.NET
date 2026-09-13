@@ -12,8 +12,13 @@ public partial class SettingsUI : Control
     {
         Window window = GetWindow();
         window.Title = "Settings";
-        window.Size = new Gd.Vector2I(480, 640);
+        window.Size = new Gd.Vector2I(RMIDlet.DefaultScreenWidth * 2, RMIDlet.DefaultScreenHeight * 2);
         window.MoveToCenter();
+        window.SetContentScaleMode(Window.ContentScaleModeEnum.CanvasItems);
+        
+#if GODOT_ANDROID
+        GetNode<CheckButton>("%EnableTouchControls").ButtonPressed = true;
+#endif
         
         OptionButton locale = GetNode<OptionButton>("%Locale");
         locale.Clear();
@@ -79,6 +84,7 @@ public partial class SettingsUI : Control
         Window window = GetWindow();
         window.Size = new Gd.Vector2I(RMIDlet.DefaultScreenWidth, RMIDlet.DefaultScreenHeight) * data["Scale"].AsInt32();
         window.MoveToCenter();
+        window.SetContentScaleMode(Window.ContentScaleModeEnum.Disabled);
         DisplayServer.WindowSetVsyncMode(data["EnableVSync"].AsBool() ? DisplayServer.VSyncMode.Enabled : DisplayServer.VSyncMode.Disabled);
         GetTree().ChangeSceneToFile("res://game.tscn");
     }

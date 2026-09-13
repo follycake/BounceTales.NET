@@ -2,7 +2,6 @@ using BounceTales.Microedition.Lcdui;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
-using System.Runtime.InteropServices;
 using Gd = Godot;
 
 namespace BounceTales.Godot;
@@ -25,7 +24,7 @@ public class GodotGraphics : Graphics
     public GodotGraphics(GodotRenderImage image)
     {
         _image = image;
-        _canvas = _image.GetCanvas();
+        _canvas = _image._canvas;
         _clipRect = new Gd.Rect2I(0, 0, image.Width, image.Height);
         Clear();
     }

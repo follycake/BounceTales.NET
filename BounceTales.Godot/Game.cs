@@ -5,6 +5,7 @@ using Godot.Collections;
 using MeltySynth;
 using System;
 using System.Runtime.InteropServices;
+using Gd = Godot;
 
 namespace BounceTales.Godot;
 
@@ -50,12 +51,7 @@ public partial class Game : Node
         AudioStreamPlayer musicPlayer = GetNode<AudioStreamPlayer>("%MusicPlayer");
         
         _midlet = new RMIDlet();
-        DefaultSystemProvider systemProvider = new()
-        {
-            JarPath = ProjectSettings.GlobalizePath("user://game.jar"),
-            DataPath = ProjectSettings.GlobalizePath("user://data/"),
-            SavePath = ProjectSettings.GlobalizePath("user://save.bin")
-        };
+        GodotSystemProvider systemProvider = new();
         _midlet.System = systemProvider;
         _graphicsProvider = new GodotGraphicsProvider(this);
         _midlet.Graphics = _graphicsProvider;
@@ -87,7 +83,10 @@ public partial class Game : Node
         }
         else
             UseEmbeddedSoundFont();
+        
         GetNode<Control>("%Softkeys").CustomMinimumSize = new Vector2(0f, _graphicsProvider.Scale.Y * 16f);
+        foreach (Node node in GetNode<Control>("%Keys").GetChildren())
+            ((Control)node).CustomMinimumSize = new Vector2(32f, 32f) * _graphicsProvider.Scale;
         
         _synth = new MeltySynthProvider(new Synthesizer(soundFont, (int)((AudioStreamGenerator)musicPlayer.Stream).MixRate));
         _midlet.Audio = _synth;
@@ -134,6 +133,7 @@ public partial class Game : Node
         _graphicsProvider.Scale = new Vector2(scale, scale);
         _graphicsProvider.ScreenWidth = w;
         _graphicsProvider.ScreenHeight = h;
+        GetWindow().MoveToCenter();
     }
 
     public void Quit()

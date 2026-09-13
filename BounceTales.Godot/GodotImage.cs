@@ -8,12 +8,14 @@ namespace BounceTales.Godot;
 public class GodotRenderImage : GodotImage
 {
     internal readonly Gd.Viewport _viewport;
+    internal readonly Gd.Node2D _canvas;
     private readonly bool _ownsViewport;
     private GodotGraphics _graphics;
     
-    public GodotRenderImage(Gd.Viewport viewport, bool ownsViewport) : base(viewport.GetTexture())
+    public GodotRenderImage(Gd.Viewport viewport, Gd.Node2D canvas, bool ownsViewport) : base(viewport.GetTexture())
     {
         _viewport = viewport;
+        _canvas = canvas;
         _ownsViewport = ownsViewport;
         Game.PreUpdate += PreUpdate;
     }
@@ -21,11 +23,6 @@ public class GodotRenderImage : GodotImage
     private void PreUpdate()
     {
         _graphics?.Clear();
-    }
-
-    public Gd.Node2D GetCanvas()
-    {
-        return _viewport.GetChild<Gd.Node2D>(0);
     }
 
     public override Graphics GetGraphics()
@@ -60,6 +57,8 @@ public class GodotImage(Gd.Texture2D texture) : Image
     public override void GetRGB(Span<Color32> rgbData)
     {
         using Gd.Image image = _texture.GetImage();
+        if (image.GetFormat() != Gd.Image.Format.Rgba8)
+            image.Convert(Gd.Image.Format.Rgba8);
         image.GetData().CopyTo(MemoryMarshal.AsBytes(rgbData));
     }
 

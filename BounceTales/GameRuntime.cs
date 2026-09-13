@@ -1679,8 +1679,9 @@ public sealed class GameRuntime : IResourceHandler
                     Monitor.Wait(loadingMutex, LOADING_WAIT_TIMEOUT);
                     while (gameIsLoading)
                     {
-                        UpdateViewport();
-                        CallGamePaint(2);
+                        // Unnecessary drawing, besides, most engines don't play nice when you try to draw on a separate thread
+                        //UpdateViewport();
+                        //CallGamePaint(2);
                         Monitor.Wait(loadingMutex, LOADING_WAIT_TIMEOUT);
                     }
                 }

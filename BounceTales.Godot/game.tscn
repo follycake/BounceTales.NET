@@ -7,40 +7,20 @@
 [sub_resource type="AudioStreamGenerator" id="AudioStreamGenerator_0ki8f"]
 buffer_length = 0.1
 
-[node name="Game" type="Control" unique_id=1476944256]
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+[node name="Game" type="Node2D" unique_id=116497915]
 script = ExtResource("1_80nbo")
 
 [node name="MusicPlayer" type="AudioStreamPlayer" parent="." unique_id=739418246]
 unique_name_in_owner = true
 stream = SubResource("AudioStreamGenerator_0ki8f")
 
-[node name="SubViewportContainer" type="SubViewportContainer" parent="." unique_id=1915869279]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-stretch = true
-
-[node name="SubViewport" type="SubViewport" parent="SubViewportContainer" unique_id=1795537611]
+[node name="Canvas" type="Node2D" parent="." unique_id=1832035680]
 unique_name_in_owner = true
-handle_input_locally = false
-canvas_item_default_texture_filter = 0
-size = Vector2i(480, 640)
-render_target_update_mode = 4
 
-[node name="Canvas" type="Node2D" parent="SubViewportContainer/SubViewport" unique_id=1832035680]
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=964683679]
 
-[node name="TouchControls" type="MarginContainer" parent="." unique_id=43727958]
+[node name="TouchControls" type="MarginContainer" parent="CanvasLayer" unique_id=43727958]
 unique_name_in_owner = true
-layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -51,24 +31,25 @@ theme_override_constants/margin_top = 2
 theme_override_constants/margin_right = 2
 theme_override_constants/margin_bottom = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="TouchControls" unique_id=2076000359]
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/TouchControls" unique_id=2076000359]
 layout_mode = 2
 alignment = 2
 
-[node name="GridContainer" type="GridContainer" parent="TouchControls/VBoxContainer" unique_id=1602906173]
+[node name="Keys" type="GridContainer" parent="CanvasLayer/TouchControls/VBoxContainer" unique_id=1602906173]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 0
 columns = 3
 
-[node name="Star" type="Panel" parent="TouchControls/VBoxContainer/GridContainer" unique_id=786345426]
-custom_minimum_size = Vector2(40, 40)
+[node name="Star" type="Panel" parent="CanvasLayer/TouchControls/VBoxContainer/Keys" unique_id=786345426]
+custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = ExtResource("2_e2o6t")
 script = ExtResource("3_feb5d")
 Action = &"STAR"
 
-[node name="Label" type="Label" parent="TouchControls/VBoxContainer/GridContainer/Star" unique_id=1220780852]
+[node name="Label" type="Label" parent="CanvasLayer/TouchControls/VBoxContainer/Keys/Star" unique_id=1220780852]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -79,15 +60,15 @@ text = "*"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Up" type="Panel" parent="TouchControls/VBoxContainer/GridContainer" unique_id=592656083]
-custom_minimum_size = Vector2(40, 40)
+[node name="Up" type="Panel" parent="CanvasLayer/TouchControls/VBoxContainer/Keys" unique_id=592656083]
+custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = ExtResource("2_e2o6t")
 script = ExtResource("3_feb5d")
 Action = &"UP"
 
-[node name="Label" type="Label" parent="TouchControls/VBoxContainer/GridContainer/Up" unique_id=398089319]
+[node name="Label" type="Label" parent="CanvasLayer/TouchControls/VBoxContainer/Keys/Up" unique_id=398089319]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -98,15 +79,15 @@ text = "^"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Pound" type="Panel" parent="TouchControls/VBoxContainer/GridContainer" unique_id=1821041682]
-custom_minimum_size = Vector2(40, 40)
+[node name="Pound" type="Panel" parent="CanvasLayer/TouchControls/VBoxContainer/Keys" unique_id=1821041682]
+custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = ExtResource("2_e2o6t")
 script = ExtResource("3_feb5d")
 Action = &"POUND"
 
-[node name="Label" type="Label" parent="TouchControls/VBoxContainer/GridContainer/Pound" unique_id=636776894]
+[node name="Label" type="Label" parent="CanvasLayer/TouchControls/VBoxContainer/Keys/Pound" unique_id=636776894]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -117,15 +98,15 @@ text = "#"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Left" type="Panel" parent="TouchControls/VBoxContainer/GridContainer" unique_id=1016862910]
-custom_minimum_size = Vector2(40, 40)
+[node name="Left" type="Panel" parent="CanvasLayer/TouchControls/VBoxContainer/Keys" unique_id=1016862910]
+custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = ExtResource("2_e2o6t")
 script = ExtResource("3_feb5d")
 Action = &"LEFT"
 
-[node name="Label" type="Label" parent="TouchControls/VBoxContainer/GridContainer/Left" unique_id=1224591900]
+[node name="Label" type="Label" parent="CanvasLayer/TouchControls/VBoxContainer/Keys/Left" unique_id=1224591900]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -136,15 +117,15 @@ text = "<"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Down" type="Panel" parent="TouchControls/VBoxContainer/GridContainer" unique_id=1984256928]
-custom_minimum_size = Vector2(40, 40)
+[node name="Down" type="Panel" parent="CanvasLayer/TouchControls/VBoxContainer/Keys" unique_id=1984256928]
+custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = ExtResource("2_e2o6t")
 script = ExtResource("3_feb5d")
 Action = &"DOWN"
 
-[node name="Label" type="Label" parent="TouchControls/VBoxContainer/GridContainer/Down" unique_id=257729407]
+[node name="Label" type="Label" parent="CanvasLayer/TouchControls/VBoxContainer/Keys/Down" unique_id=257729407]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -155,15 +136,15 @@ text = "v"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Right" type="Panel" parent="TouchControls/VBoxContainer/GridContainer" unique_id=1719654502]
-custom_minimum_size = Vector2(40, 40)
+[node name="Right" type="Panel" parent="CanvasLayer/TouchControls/VBoxContainer/Keys" unique_id=1719654502]
+custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = ExtResource("2_e2o6t")
 script = ExtResource("3_feb5d")
 Action = &"RIGHT"
 
-[node name="Label" type="Label" parent="TouchControls/VBoxContainer/GridContainer/Right" unique_id=1054150996]
+[node name="Label" type="Label" parent="CanvasLayer/TouchControls/VBoxContainer/Keys/Right" unique_id=1054150996]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -174,26 +155,26 @@ text = ">"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Softkeys" type="HBoxContainer" parent="TouchControls/VBoxContainer" unique_id=341752813]
+[node name="Softkeys" type="HBoxContainer" parent="CanvasLayer/TouchControls/VBoxContainer" unique_id=341752813]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 16)
 layout_mode = 2
 
-[node name="SoftkeyLeft" type="Panel" parent="TouchControls/VBoxContainer/Softkeys" unique_id=1991475136]
+[node name="SoftkeyLeft" type="Panel" parent="CanvasLayer/TouchControls/VBoxContainer/Softkeys" unique_id=1991475136]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = ExtResource("2_e2o6t")
 script = ExtResource("3_feb5d")
 Action = &"SOFTKEY_LEFT"
 
-[node name="SoftkeyMiddle" type="Panel" parent="TouchControls/VBoxContainer/Softkeys" unique_id=242398866]
+[node name="SoftkeyMiddle" type="Panel" parent="CanvasLayer/TouchControls/VBoxContainer/Softkeys" unique_id=242398866]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = ExtResource("2_e2o6t")
 script = ExtResource("3_feb5d")
 Action = &"SOFTKEY_MIDDLE"
 
-[node name="SoftKeyRight" type="Panel" parent="TouchControls/VBoxContainer/Softkeys" unique_id=1691586610]
+[node name="SoftKeyRight" type="Panel" parent="CanvasLayer/TouchControls/VBoxContainer/Softkeys" unique_id=1691586610]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = ExtResource("2_e2o6t")

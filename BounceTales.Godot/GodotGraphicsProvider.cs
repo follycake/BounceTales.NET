@@ -34,8 +34,8 @@ public sealed class GodotGraphicsProvider : IGraphicsProvider
     public GodotGraphicsProvider(Game game)
     {
         Game = game;
-        _screen = new GodotRenderImage(Game.GetNode<Gd.SubViewport>("%SubViewport"), false);
-        _canvas = _screen.GetCanvas();
+        _screen = new GodotRenderImage(Game.GetViewport(), Game.GetNode<Gd.Node2D>("%Canvas"), false);
+        _canvas = _screen._canvas;
     }
 
     public void Initialize()
@@ -65,9 +65,13 @@ public sealed class GodotGraphicsProvider : IGraphicsProvider
             CanvasItemDefaultTextureFilter = Gd.Viewport.DefaultCanvasItemTextureFilter.Nearest,
             RenderTargetUpdateMode = Gd.SubViewport.UpdateMode.Always
         };
-        viewport.AddChild(new Gd.Node2D { Name = "Canvas" });
+        Gd.Node2D canvas = new()
+        {
+            Name = "Canvas"
+        };
+        viewport.AddChild(canvas);
         Game.AddChild(viewport);
-        return new GodotRenderImage(viewport, true);
+        return new GodotRenderImage(viewport, canvas, true);
     }
     
     public void Dispose()

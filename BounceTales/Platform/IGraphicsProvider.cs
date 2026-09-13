@@ -4,8 +4,8 @@ namespace BounceTales.Platform;
 
 public interface IGraphicsProvider : IProvider
 {
-    int ScreenWidth { get; set; }
-    int ScreenHeight { get; set; }
+    int ScreenWidth { get; }
+    int ScreenHeight { get; }
 
     Graphics GetGraphics();
     void FlushGraphics();
