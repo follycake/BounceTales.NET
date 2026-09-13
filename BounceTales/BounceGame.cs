@@ -1250,8 +1250,9 @@ public sealed class BounceGame
         BounceObj = null;
         events = null;
         CurrentCannon = null;
+        
+        ResetParallaxStolenColors(); // Fixes regular assets not unloading bug
         parallaxImagesRegColors = null;
-
         if (parallaxImagesStolenColors != null)
         {
             foreach (Image image in parallaxImagesStolenColors)
