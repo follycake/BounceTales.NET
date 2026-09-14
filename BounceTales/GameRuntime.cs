@@ -1704,6 +1704,7 @@ public sealed class GameRuntime : IResourceHandler
         {
             Debug.WriteLine("Initializing game");
 
+            StringManager.Reset();
             GameThreadStarted = true;
             systemEventQueue = new SystemEvent[20];
             systemEventQueueSize = 0;
@@ -1843,6 +1844,7 @@ public sealed class GameRuntime : IResourceHandler
             MidLet = null;
             mInstance = null;
             ResetGlobalState();
+            StringManager.Reset();
 
             // TEMPORARY
             if (Image.notDisposedCount == 0)

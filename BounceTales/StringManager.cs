@@ -97,6 +97,13 @@ public static class StringManager
     // private static string localeProperty;
     // Removed platform checking, which we do not care about.
 
+    private static byte[] cachedLang;
+
+    public static void Reset()
+    {
+        cachedLang = null;
+    }
+
     public static string GetMessage(int msgId)
     {
         return GetMessage(msgId, null);
@@ -124,11 +131,16 @@ public static class StringManager
         int offset = 0;
         try
         {
-            // Removed stream caching.
-            using Stream langRscStrm = system.GetResourceAsStream("/lang." + system.Locale) ?? system.GetResourceAsStream("/lang.xx");
-            if (langRscStrm == null)
-                return "X";
-            using DataInputStream textReader = new(langRscStrm);
+            if (cachedLang == null)
+            {
+                using Stream langRscStrm = system.GetResourceAsStream("/lang." + system.Locale) ?? system.GetResourceAsStream("/lang.xx");
+                if (langRscStrm == null)
+                    return "X";
+                cachedLang = new byte[langRscStrm.Length];
+                langRscStrm.ReadExactly(cachedLang);
+            }
+            using MemoryStream cachedLangRscStrm = new(cachedLang);
+            using DataInputStream textReader = new(cachedLangRscStrm);
             msgId = MessageID.CONST_MESSAGE_MAP[msgId];
             textReader.SkipBytes(msgId * 2);
             // skip to actual message offset
