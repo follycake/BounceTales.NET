@@ -10,7 +10,7 @@
 [ext_resource type="Texture2D" uid="uid://dhlsqm02ine16" path="res://UI/softkey_right.png" id="7_j5wjh"]
 
 [sub_resource type="AudioStreamGenerator" id="AudioStreamGenerator_0ki8f"]
-buffer_length = 0.1
+buffer_length = 0.05
 
 [node name="Game" type="Node2D" unique_id=116497915]
 script = ExtResource("1_80nbo")

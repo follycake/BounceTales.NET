@@ -54,13 +54,6 @@ public partial class Game : Node
         _graphicsProvider = new GodotGraphicsProvider(this);
         _midlet.Graphics = _graphicsProvider;
         
-        SoundFont soundFont;
-        void UseEmbeddedSoundFont()
-        {
-            using System.IO.MemoryStream stream = new(FileAccess.GetFileAsBytes("res://Chaos_Bank.sf2"));
-            soundFont = new SoundFont(stream);
-        }
-        
         if (FileAccess.FileExists(UI.SettingsUI.ConfigPath))
         {
             Dictionary data = UI.SettingsUI.LoadSettings();
@@ -70,18 +63,17 @@ public partial class Game : Node
             systemProvider.EnableCheats = data["EnableCheats"].AsBool();
             systemProvider.DebugOverlay = data["DebugOverlay"].AsBool();
             systemProvider.ObjectDrawDebug = data["ObjectDrawDebug"].AsBool();
-            string jarPath = data["JarPath"].AsString();
-            if (!string.IsNullOrWhiteSpace(jarPath))
-                systemProvider.JarPath = jarPath;
-            string soundFontPath = data["SoundFontPath"].AsString();
-            if (!string.IsNullOrWhiteSpace(soundFontPath))
-                soundFont = new SoundFont(data["SoundFontPath"].AsString());
-            else
-                UseEmbeddedSoundFont();
         }
-        else
-            UseEmbeddedSoundFont();
         
+        SoundFont soundFont;
+        if (FileAccess.FileExists(UI.SettingsUI.SoundFontPath))
+            soundFont = new SoundFont(ProjectSettings.GlobalizePath(UI.SettingsUI.SoundFontPath));
+        else
+        {
+            using System.IO.MemoryStream stream = new(FileAccess.GetFileAsBytes(UI.SettingsUI.EmbeddedSoundFontPath));
+            soundFont = new SoundFont(stream);
+        }
+
         _synth = new MeltySynthProvider(new Synthesizer(soundFont, (int)((AudioStreamGenerator)musicPlayer.Stream).MixRate));
         _midlet.Audio = _synth;
         _midlet.Start();

@@ -7,9 +7,9 @@ namespace BounceTales.Godot;
 
 public sealed class GodotSystemProvider : ISystemProvider
 {
+    public const string JarPath = "user://game.jar";
     public const string SavePath = "user://save.bin";
-
-    public string JarPath { get; set; } = "user://game.jar";
+    
     public string Locale { get; set; } = "en-US";
     public bool EnableCheats { get; set; }
     public bool DebugOverlay { get; set; }

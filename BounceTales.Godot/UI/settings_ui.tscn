@@ -42,37 +42,65 @@ layout_mode = 2
 layout_mode = 2
 text = "Game Jar (.jar)"
 
-[node name="HBoxContainer2" type="HBoxContainer" parent="MarginContainer/ScrollContainer/MarginContainer/VBoxContainer" unique_id=2038394730]
+[node name="PanelContainer" type="PanelContainer" parent="MarginContainer/ScrollContainer/MarginContainer/VBoxContainer" unique_id=192133780]
 layout_mode = 2
 
-[node name="JarPath" type="LineEdit" parent="MarginContainer/ScrollContainer/MarginContainer/VBoxContainer/HBoxContainer2" unique_id=1545130710 groups=["config"]]
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/ScrollContainer/MarginContainer/VBoxContainer/PanelContainer" unique_id=1065188921]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="MarginContainer/ScrollContainer/MarginContainer/VBoxContainer/PanelContainer/MarginContainer" unique_id=2038394730]
+layout_mode = 2
+
+[node name="Jar" type="Label" parent="MarginContainer/ScrollContainer/MarginContainer/VBoxContainer/PanelContainer/MarginContainer/HBoxContainer2" unique_id=2062448117]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-placeholder_text = "user://game.jar"
+theme_override_colors/font_color = Color(1, 1, 1, 0.49803922)
+text = "JAR_STATUS"
 
-[node name="Browse" type="Button" parent="MarginContainer/ScrollContainer/MarginContainer/VBoxContainer/HBoxContainer2" unique_id=1599829081]
+[node name="Select" type="Button" parent="MarginContainer/ScrollContainer/MarginContainer/VBoxContainer/PanelContainer/MarginContainer/HBoxContainer2" unique_id=1599829081]
 layout_mode = 2
-text = "Browse"
+text = "Select"
 
-[node name="OpenUserFolder" type="Button" parent="MarginContainer/ScrollContainer/MarginContainer/VBoxContainer" unique_id=805552841]
+[node name="Delete" type="Button" parent="MarginContainer/ScrollContainer/MarginContainer/VBoxContainer/PanelContainer/MarginContainer/HBoxContainer2" unique_id=1910612686]
 layout_mode = 2
-text = "Open user data folder"
+text = "Delete"
 
 [node name="Label3" type="Label" parent="MarginContainer/ScrollContainer/MarginContainer/VBoxContainer" unique_id=1984499254]
 layout_mode = 2
 text = "Sound Font (.sf2)"
 
-[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/ScrollContainer/MarginContainer/VBoxContainer" unique_id=507733789]
+[node name="PanelContainer2" type="PanelContainer" parent="MarginContainer/ScrollContainer/MarginContainer/VBoxContainer" unique_id=266941303]
 layout_mode = 2
 
-[node name="SoundFontPath" type="LineEdit" parent="MarginContainer/ScrollContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=1630674430 groups=["config"]]
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/ScrollContainer/MarginContainer/VBoxContainer/PanelContainer2" unique_id=1111665183]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/ScrollContainer/MarginContainer/VBoxContainer/PanelContainer2/MarginContainer" unique_id=507733789]
+layout_mode = 2
+
+[node name="SoundFont" type="Label" parent="MarginContainer/ScrollContainer/MarginContainer/VBoxContainer/PanelContainer2/MarginContainer/HBoxContainer" unique_id=1554870458]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-placeholder_text = "Use embedded Chaos_Bank.sf2"
+theme_override_colors/font_color = Color(1, 1, 1, 0.49803922)
+text = "SOUNDFONT_STATUS"
 
-[node name="Browse" type="Button" parent="MarginContainer/ScrollContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=2002709114]
+[node name="Select" type="Button" parent="MarginContainer/ScrollContainer/MarginContainer/VBoxContainer/PanelContainer2/MarginContainer/HBoxContainer" unique_id=2002709114]
 layout_mode = 2
-text = "Browse"
+text = "Select"
+
+[node name="Delete" type="Button" parent="MarginContainer/ScrollContainer/MarginContainer/VBoxContainer/PanelContainer2/MarginContainer/HBoxContainer" unique_id=141054848]
+layout_mode = 2
+text = "Delete"
 
 [node name="Label2" type="Label" parent="MarginContainer/ScrollContainer/MarginContainer/VBoxContainer" unique_id=1819636196]
 layout_mode = 2
@@ -91,7 +119,7 @@ unique_name_in_owner = true
 layout_mode = 2
 min_value = 1.0
 max_value = 6.0
-value = 1.0
+value = 2.0
 rounded = true
 tick_count = 6
 ticks_on_borders = true
@@ -122,7 +150,12 @@ text = "Debug Overlay"
 layout_mode = 2
 text = "Object Draw Debug"
 
-[node name="PlayButton" type="Button" parent="MarginContainer/ScrollContainer/MarginContainer/VBoxContainer" unique_id=1134673267]
+[node name="OpenUserFolder" type="Button" parent="MarginContainer/ScrollContainer/MarginContainer/VBoxContainer" unique_id=805552841]
+layout_mode = 2
+text = "Open user data folder"
+
+[node name="Play" type="Button" parent="MarginContainer/ScrollContainer/MarginContainer/VBoxContainer" unique_id=1134673267]
+unique_name_in_owner = true
 layout_mode = 2
 text = "Play"
 
@@ -138,9 +171,11 @@ file_mode = 0
 access = 2
 use_native_dialog = true
 
-[connection signal="pressed" from="MarginContainer/ScrollContainer/MarginContainer/VBoxContainer/HBoxContainer2/Browse" to="JarDialog" method="show"]
+[connection signal="pressed" from="MarginContainer/ScrollContainer/MarginContainer/VBoxContainer/PanelContainer/MarginContainer/HBoxContainer2/Select" to="JarDialog" method="show"]
+[connection signal="pressed" from="MarginContainer/ScrollContainer/MarginContainer/VBoxContainer/PanelContainer/MarginContainer/HBoxContainer2/Delete" to="." method="SetJar" binds= [""]]
+[connection signal="pressed" from="MarginContainer/ScrollContainer/MarginContainer/VBoxContainer/PanelContainer2/MarginContainer/HBoxContainer/Select" to="SoundFontDialog" method="show"]
+[connection signal="pressed" from="MarginContainer/ScrollContainer/MarginContainer/VBoxContainer/PanelContainer2/MarginContainer/HBoxContainer/Delete" to="." method="SetSoundFont" binds= [""]]
 [connection signal="pressed" from="MarginContainer/ScrollContainer/MarginContainer/VBoxContainer/OpenUserFolder" to="." method="OpenUserFolder"]
-[connection signal="pressed" from="MarginContainer/ScrollContainer/MarginContainer/VBoxContainer/HBoxContainer/Browse" to="SoundFontDialog" method="show"]
-[connection signal="pressed" from="MarginContainer/ScrollContainer/MarginContainer/VBoxContainer/PlayButton" to="." method="Play"]
-[connection signal="file_selected" from="JarDialog" to="MarginContainer/ScrollContainer/MarginContainer/VBoxContainer/HBoxContainer2/JarPath" method="set_text"]
-[connection signal="file_selected" from="SoundFontDialog" to="MarginContainer/ScrollContainer/MarginContainer/VBoxContainer/HBoxContainer/SoundFontPath" method="set_text"]
+[connection signal="pressed" from="MarginContainer/ScrollContainer/MarginContainer/VBoxContainer/Play" to="." method="Play"]
+[connection signal="file_selected" from="JarDialog" to="." method="SetJar"]
+[connection signal="file_selected" from="SoundFontDialog" to="." method="SetSoundFont"]

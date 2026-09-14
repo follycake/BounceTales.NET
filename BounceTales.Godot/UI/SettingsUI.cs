@@ -7,6 +7,8 @@ namespace BounceTales.Godot.UI;
 public partial class SettingsUI : Control
 {
     public const string ConfigPath = "user://settings.json";
+    public const string SoundFontPath = "user://soundfont.sf2";
+    public const string EmbeddedSoundFontPath = "res://Chaos_Bank.sf2";
     
 	public override void _Ready()
     {
@@ -26,6 +28,7 @@ public partial class SettingsUI : Control
             locale.AddItem(str);
         locale.Select(System.Array.IndexOf(StringManager.LocaleList, "en-US"));
         Load();
+        UpdateStatus();
     }
 
     public static Dictionary LoadSettings()
@@ -60,7 +63,7 @@ public partial class SettingsUI : Control
         return data;
     }
 
-    static StringName GetBindProperty(Node node)
+    private static StringName GetBindProperty(Node node)
     {
         if (node.IsClass(nameof(LineEdit)))
             return LineEdit.PropertyName.Text;
@@ -73,6 +76,47 @@ public partial class SettingsUI : Control
         return null;
     }
 
+    private void UpdateStatus()
+    {
+        bool jarExists = FileAccess.FileExists(GodotSystemProvider.JarPath);
+        GetNode<Label>("%Jar").Text = jarExists ? "Ready to play" : "Not found, provide a copy";
+        GetNode<Label>("%SoundFont").Text = FileAccess.FileExists(SoundFontPath) ? "Using custom sf2" : "Using embedded " + EmbeddedSoundFontPath;
+        GetNode<Button>("%Play").Disabled = !jarExists;
+    }
+
+    private static void CopyFile(string from, string to)
+    {
+        if (FileAccess.FileExists(to))
+            DirAccess.RemoveAbsolute(to);
+        byte[] data = FileAccess.GetFileAsBytes(from);
+        FileAccess f = FileAccess.Open(to, FileAccess.ModeFlags.Write);
+        f.StoreBuffer(data);
+    }
+
+    public void SetJar(string path)
+    {
+        if (string.IsNullOrEmpty(path))
+        {
+            if (FileAccess.FileExists(GodotSystemProvider.JarPath))
+                DirAccess.RemoveAbsolute(GodotSystemProvider.JarPath);
+        }
+        else
+            CopyFile(path, GodotSystemProvider.JarPath);
+        UpdateStatus();
+    }
+
+    public void SetSoundFont(string path)
+    {
+        if (string.IsNullOrEmpty(path))
+        {
+            if (FileAccess.FileExists(SoundFontPath))
+                DirAccess.RemoveAbsolute(SoundFontPath);
+        }
+        else
+            CopyFile(path, SoundFontPath);
+        UpdateStatus();
+    }
+
     public static void OpenUserFolder()
     {
         OS.ShellShowInFileManager(ProjectSettings.GlobalizePath("user://"));
@@ -80,6 +124,9 @@ public partial class SettingsUI : Control
     
     public void Play()
     {
+        UpdateStatus();
+        if (!FileAccess.FileExists(GodotSystemProvider.JarPath))
+            return;
         Dictionary data = Save();
         Window window = GetWindow();
         window.Size = new Gd.Vector2I(RMIDlet.DefaultScreenWidth, RMIDlet.DefaultScreenHeight) * data["Scale"].AsInt32();
