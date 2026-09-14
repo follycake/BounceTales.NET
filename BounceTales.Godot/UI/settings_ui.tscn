@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://px752dl1roxu"]
 
-[ext_resource type="Script" uid="uid://bmt87swoymatl" path="res://SettingsUI.cs" id="1_rwyt3"]
+[ext_resource type="Script" uid="uid://bmt87swoymatl" path="res://UI/SettingsUI.cs" id="1_rwyt3"]
 
 [node name="SettingsUI" type="Control" unique_id=945841487]
 texture_filter = 2

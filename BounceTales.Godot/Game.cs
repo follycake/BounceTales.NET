@@ -1,11 +1,9 @@
-using BounceTales.Platform;
 using BounceTales.Platform.Software;
 using Godot;
 using Godot.Collections;
 using MeltySynth;
 using System;
 using System.Runtime.InteropServices;
-using Gd = Godot;
 
 namespace BounceTales.Godot;
 
@@ -63,9 +61,9 @@ public partial class Game : Node
             soundFont = new SoundFont(stream);
         }
         
-        if (FileAccess.FileExists(SettingsUI.ConfigPath))
+        if (FileAccess.FileExists(UI.SettingsUI.ConfigPath))
         {
-            Dictionary data = SettingsUI.LoadSettings();
+            Dictionary data = UI.SettingsUI.LoadSettings();
             GetNode<Control>("%TouchControls").Visible = data["EnableTouchControls"].AsBool();
             _graphicsProvider.Scale = Vector2.One * data["Scale"].AsInt32();
             systemProvider.Locale = StringManager.LocaleList[data["Locale"].AsInt32()];
@@ -83,10 +81,6 @@ public partial class Game : Node
         }
         else
             UseEmbeddedSoundFont();
-        
-        GetNode<Control>("%Softkeys").CustomMinimumSize = new Vector2(0f, _graphicsProvider.Scale.Y * 16f);
-        foreach (Node node in GetNode<Control>("%Keys").GetChildren())
-            ((Control)node).CustomMinimumSize = new Vector2(32f, 32f) * _graphicsProvider.Scale;
         
         _synth = new MeltySynthProvider(new Synthesizer(soundFont, (int)((AudioStreamGenerator)musicPlayer.Stream).MixRate));
         _midlet.Audio = _synth;
@@ -143,7 +137,7 @@ public partial class Game : Node
         if (_quitEntirely)
             tree.Quit();
         else
-            tree.ChangeSceneToFile("res://settings_ui.tscn");
+            tree.ChangeSceneToFile("res://UI/settings_ui.tscn");
     }
 
     public override void _ExitTree()

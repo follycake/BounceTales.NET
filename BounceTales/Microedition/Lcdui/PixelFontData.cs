@@ -1,6 +1,6 @@
 ﻿namespace BounceTales.Microedition.Lcdui;
 
-internal class PixelFontData
+internal static class PixelFontData
 {
     // https://github.com/dhepper/font8x8
     public static readonly byte[,] Font8x8 = new byte[128, 8]

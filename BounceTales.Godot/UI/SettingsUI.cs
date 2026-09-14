@@ -2,7 +2,7 @@ using Godot;
 using Godot.Collections;
 using Gd = Godot;
 
-namespace BounceTales.Godot;
+namespace BounceTales.Godot.UI;
 
 public partial class SettingsUI : Control
 {
