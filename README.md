@@ -5,6 +5,8 @@ the [java decompilation by HelloOO7](https://github.com/HelloOO7/BounceTales). T
 AI assistance. The project began in late 2024 and was periodically abandoned and resumed until one day I decided to give
 it my all and slowly turn it into what it is today.
 
+![In-game screenshot](screenshot.png)
+
 # Features
 
 - Full source code ported to C#
@@ -22,6 +24,7 @@ While the jar file contains java bytecode, this is not used as the game's assets
 
 # Projects used
 
+- [HelloOO7/BounceTales](https://github.com/HelloOO7/BounceTales)
 - [Raylib-cs (and raylib)](https://github.com/raylib-cs/raylib-cs)
 - [Godot: Game engine](https://github.com/godotengine/godot)
 - [MeltySynth: SoundFont synthesizer](https://github.com/sinshu/meltysynth)
